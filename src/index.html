@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reading List</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script src="index.ts" type="module"></script>
+  <style>
+    /* Theme variables (--ls-*) are injected at runtime by theme.ts,
+       pulled from the live Logseq theme with a light/dark fallback. */
+    * { box-sizing: border-box; }
+
+    body, .lrl-dialog, .lrl-dialog h1, .lrl-dialog h2,
+    .lrl-dialog input, .lrl-dialog textarea, .lrl-dialog button {
+      font-family: var(--ls-font-family, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+    }
+
+    div#app {
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(3px);
+    }
+
+    dialog.lrl-dialog {
+      border: 1px solid var(--ls-border-color);
+      background: var(--ls-primary-background-color);
+      color: var(--ls-primary-text-color);
+      border-radius: 12px;
+      padding: 20px 22px;
+      width: min(680px, 92vw);
+      max-height: 86vh;
+      overflow-y: auto;
+      box-shadow: 0 14px 48px rgba(0, 0, 0, 0.35);
+      font-size: 14px;
+    }
+    dialog.lrl-dialog::backdrop { background: rgba(0, 0, 0, 0.45); }
+
+    .lrl-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .lrl-head h1 {
+      font-size: 17px; font-weight: 700; margin: 0;
+      color: var(--ls-primary-text-color);
+    }
+
+    .lrl-segments { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .lrl-seg {
+      appearance: none; cursor: pointer; font-size: 13px;
+      padding: 6px 14px; border-radius: 8px;
+      border: 1px solid var(--ls-border-color);
+      background: var(--ls-secondary-background-color);
+      color: var(--ls-primary-text-color);
+    }
+    .lrl-seg:hover { background: var(--ls-tertiary-background-color); }
+    .lrl-seg-active {
+      background: var(--ls-active-primary-color);
+      border-color: var(--ls-active-primary-color);
+      color: #fff;
+    }
+
+    .lrl-inputrow { display: flex; gap: 8px; align-items: stretch; }
+    #lrlInput, #lrlTextarea {
+      flex: 1; font-size: 14px; padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--ls-border-color);
+      background: var(--ls-primary-background-color);
+      color: var(--ls-primary-text-color);
+      outline: none;
+    }
+    #lrlTextarea { min-height: 84px; resize: vertical; font-family: inherit; }
+    #lrlInput:focus, #lrlTextarea:focus {
+      border-color: var(--ls-active-primary-color);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--ls-active-primary-color) 30%, transparent);
+    }
+
+    .lrl-primary {
+      appearance: none; cursor: pointer; font-size: 13px; font-weight: 600;
+      padding: 9px 16px; border-radius: 8px; border: none;
+      background: var(--ls-active-primary-color); color: #fff;
+      white-space: nowrap;
+    }
+    .lrl-primary:hover { filter: brightness(1.08); }
+    .lrl-ghost {
+      appearance: none; cursor: pointer; font-size: 13px;
+      padding: 9px 16px; border-radius: 8px;
+      border: 1px solid var(--ls-border-color);
+      background: transparent; color: var(--ls-primary-text-color);
+    }
+    .lrl-ghost:hover { background: var(--ls-tertiary-background-color); }
+    .lrl-link {
+      appearance: none; cursor: pointer; background: none; border: none;
+      color: var(--ls-link-text-color); font-size: 13px; padding: 0;
+      text-decoration: none;
+    }
+    .lrl-link:hover { text-decoration: underline; }
+    .lrl-iconbtn {
+      appearance: none; cursor: pointer; background: none; border: none;
+      color: var(--ls-secondary-text-color); font-size: 16px; line-height: 1;
+      padding: 4px 8px; border-radius: 6px;
+    }
+    .lrl-iconbtn:hover {
+      background: var(--ls-tertiary-background-color);
+      color: var(--ls-primary-text-color);
+    }
+
+    #outputFromAPI { display: block; margin-top: 16px; }
+    .lrl-status { color: var(--ls-secondary-text-color); padding: 14px 2px; }
+    .lrl-error { color: #e5534b; }
+    .lrl-results-h { font-size: 14px; font-weight: 700; margin: 4px 0 10px; }
+
+    ul.lrl-results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    li.lrl-result {
+      display: flex; gap: 14px; padding: 12px;
+      border: 1px solid var(--ls-border-color);
+      border-radius: 10px;
+      background: var(--ls-secondary-background-color);
+    }
+    li.lrl-result:hover { background: var(--ls-tertiary-background-color); }
+    .lrl-result-cover { flex: 0 0 64px; }
+    .lrl-result-cover img {
+      width: 64px; height: 96px; object-fit: cover; border-radius: 5px;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+    }
+    .lrl-noimg {
+      width: 64px; height: 96px; border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; text-align: center;
+      background: var(--ls-tertiary-background-color);
+      color: var(--ls-secondary-text-color);
+    }
+    .lrl-result-body { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .lrl-result-title { font-weight: 600; color: var(--ls-primary-text-color); }
+    .lrl-result-author { color: var(--ls-primary-text-color); font-size: 13px; }
+    .lrl-result-meta { color: var(--ls-secondary-text-color); font-size: 12px; }
+    .lrl-result-actions { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
+
+    .lrl-foot {
+      margin-top: 16px; padding-top: 12px;
+      border-top: 1px solid var(--ls-border-color);
+      display: flex; justify-content: flex-end;
+    }
+
+    .lrl-confirm {
+      position: absolute; inset: 0; display: flex;
+      align-items: center; justify-content: center;
+      background: rgba(0, 0, 0, 0.4); border-radius: 12px;
+    }
+    .lrl-confirm-card {
+      background: var(--ls-primary-background-color);
+      border: 1px solid var(--ls-border-color);
+      border-radius: 10px; padding: 20px 22px;
+      width: min(380px, 84%);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    .lrl-confirm-card p { margin: 0 0 16px; color: var(--ls-primary-text-color); }
+    .lrl-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; }
+  </style>
+</body>
+
+</html>

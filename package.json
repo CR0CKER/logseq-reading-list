@@ -1,0 +1,29 @@
+{
+  "name": "logseq-reading-list",
+  "description": "Search Google Books and build a template-based visual reading list in Logseq",
+  "author": "CR0CKER",
+  "logseq": {
+    "id": "logseq-reading-list",
+    "title": "Reading List",
+    "icon": "./icon.svg"
+  },
+  "main": "dist/index.html",
+  "targets": {
+    "main": false
+  },
+  "effect": true,
+  "scripts": {
+    "dev": "parcel src/index.html --public-url ./ --no-cache",
+    "build": "parcel build --no-source-maps src/index.html --public-url ./"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@logseq/libs": "0.0.17",
+    "mustache": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/mustache": "^4.2.5",
+    "parcel": "^2.12.0",
+    "typescript": "^5.4.0"
+  }
+}
