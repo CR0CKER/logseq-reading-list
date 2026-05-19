@@ -24,9 +24,10 @@ This is a fork of [YU000jp/logseq-plugin-google-books](https://github.com/YU000j
 - **Customizable Mustache templates** for the book page, description block, and
   Google Books link — editable in settings, parsed safely back into page
   properties.
-- **Local cover** embedded as a base64 data URI in a single `cover::`
-  property (offline-safe, travels with the graph, never a broken link);
-  falls back to the remote URL if the image can't be fetched.
+- **Local cover** saved as a real asset file under
+  `assets/storages/<plugin-id>/`, referenced by a single short `cover::`
+  property (offline-safe, editable block); falls back to the remote URL
+  if the image can't be fetched.
 - **Visual reading-list grid** via the `{{renderer :reading-list}}` macro:
   responsive cover cards with status filter chips (To read / Reading / Read).
 - English-only (Japanese i18n / dateutils dependencies removed).

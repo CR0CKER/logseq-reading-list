@@ -49,6 +49,14 @@ async function queryBooks(): Promise<BookRow[]> {
     return []
   }
 
+  let graphPath = ''
+  try {
+    const g = (await logseq.App.getCurrentGraph()) as { path?: string } | null
+    graphPath = g?.path || ''
+  } catch {
+    /* ignore */
+  }
+
   const books: BookRow[] = []
   for (const r of rows) {
     const p = Array.isArray(r) ? r[0] : r
@@ -59,9 +67,13 @@ async function queryBooks(): Promise<BookRow[]> {
     const name = p['original-name'] || p['block/original-name'] || p['name'] || p['block/name']
     if (!name) continue
 
-    // The `cover` property holds `![cover](<data-uri or url>)`; the src
-    // works directly in an <img> (no asset-path resolution needed).
-    const imgSrc = pathFromCover(props.cover)
+    // `cover` holds `![cover](<src>)`. http(s)/data URIs work as-is; a
+    // relative ../assets/ ref must be made absolute for the plugin-
+    // rendered <img> (the page itself resolves it natively).
+    let imgSrc = pathFromCover(props.cover)
+    if (imgSrc.startsWith('../assets/') && graphPath) {
+      imgSrc = `assets://${graphPath}/${imgSrc.replace(/^\.\.\//, '')}`
+    }
 
     books.push({
       pageName: String(name),
