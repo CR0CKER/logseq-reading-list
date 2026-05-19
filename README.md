@@ -1,7 +1,8 @@
 # Logseq Reading List
 
-Search Google Books by **title, author, or ISBN**, pick the right edition from a
-clean themed result list, and generate a **template-based book page** in Logseq —
+Search **Open Library or Google Books** by **title, author, or ISBN**, pick the
+right edition from a clean themed result list, and generate a
+**template-based book page** in Logseq —
 with the cover saved locally, the description, author, ISBN and a reading
 `status::`. A built-in macro renders a **visual cover grid** so the whole graph
 becomes a browsable reading list.
@@ -13,10 +14,11 @@ This is a fork of [YU000jp/logseq-plugin-google-books](https://github.com/YU000j
 
 ## What's different from upstream
 
-- **Fixed the broken search.** The Google Books API requires a `country`
-  parameter; without it, non-US requests silently return zero results. Added a
-  configurable `country` setting (default `US`) plus real error messages that
-  distinguish "no results" from rate-limit / network failures.
+- **Fixed the broken search + added Open Library.** Default source is now
+  keyless **Open Library** (no quota, no 429s). Google Books is still available
+  (with its required `country` param and optional API key) for its richer
+  descriptions. Real error messages distinguish "no results" from rate-limit /
+  network failures.
 - **Theme-native UI.** SweetAlert2 removed. The search modal renders with
   Logseq's own theme variables (light/dark/custom), pulled live from the app.
 - **Customizable Mustache templates** for the book page, description block, and
@@ -50,19 +52,25 @@ In Logseq: **Settings → Advanced → Developer mode**, then
 - Change a page's `status::` to `to-read` / `reading` / `read` to move it
   between grid filters; *Reading List: refresh grid* re-queries.
 
-## Rate limits / API key
+## Data source
 
-Keyless Google Books requests are attributed to a single **shared anonymous
-project pooled across every keyless caller worldwide**. When that pool is
-exhausted you get HTTP 429 *regardless of your own IP* — it is not a per-IP
-limit. Fix: create a free API key
-(<https://console.cloud.google.com/apis/credentials>, enable the **Books API**)
-and paste it into the plugin's **Google Books API key** setting for your own
-private quota.
+Two sources, switchable in settings (**Book data source**):
+
+- **Open Library** (default, recommended) — Internet Archive's open database.
+  Completely **keyless, no quota, no rate limits**. Works out of the box.
+- **Google Books** — often richer descriptions, but its keyless requests share
+  a single anonymous quota pooled across every caller worldwide; when that pool
+  is exhausted you get HTTP 429 *regardless of your IP*. If you choose Google,
+  add a free API key (<https://console.cloud.google.com/apis/credentials>,
+  enable the **Books API**) in the **Google Books API key** setting.
+
+> Amazon's Product Advertising API was evaluated and rejected: it requires an
+> approved Associates account with ongoing affiliate sales, and is being
+> deprecated (May 2026).
 
 ## Settings
 
-`apiKey`, `country`, `saveImage`, `defaultStatus`, `pageNamePrefix`,
+`dataSource`, `apiKey`, `country`, `saveImage`, `defaultStatus`, `pageNamePrefix`,
 `readingListPageName`, `assetsSubfolder`, and three Mustache templates
 (`bookPageTemplate`, `descriptionBlockTemplate`, `gbooksLinkTemplate`).
 *Reading List: reset templates to defaults* restores the shipped templates.

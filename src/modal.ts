@@ -1,8 +1,9 @@
 import { PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 import { createBookPage } from './createBookPage'
 import { createPagesByISBN } from './createPagesByISBN'
-import { bookPageName, closeModal, openModal, setCloseButton, setMainUIApp, setReadingPageButton } from './lib'
+import { bookPageName, setCloseButton, setMainUIApp, setReadingPageButton } from './lib'
 import { search } from './search'
+import { BookResult, currentSource } from './providers'
 import { applyTheme } from './theme'
 
 const MODES: { id: string; label: string; placeholder: string }[] = [
@@ -25,6 +26,7 @@ export const model = {
       (m, i) =>
         `<button type="button" class="lrl-seg${i === 0 ? ' lrl-seg-active' : ''}" data-mode="${m.id}">${m.label}</button>`,
     ).join('')
+    const sourceLabel = currentSource() === 'google' ? 'Google Books' : 'Open Library'
 
     const appHtml = `
       <dialog id="appDialog" class="lrl-dialog">
@@ -42,6 +44,7 @@ export const model = {
         </form>
         <output aria-live="polite" id="outputFromAPI"></output>
         <div class="lrl-foot">
+          <span class="lrl-source">Source: ${sourceLabel}</span>
           <button id="ReadingBtn" class="lrl-link">Open Reading List ↗</button>
         </div>
         <div id="lrlConfirm" class="lrl-confirm" style="display:none"></div>
@@ -85,12 +88,10 @@ function wireModal() {
       const msg = await logseq.UI.showMsg('Bulk creating from ISBN codes…', 'info', {
         timeout: 1000 * 60 * 5,
       })
-      // createPagesByISBN reads a textarea inside the given form-like element.
-      await createPagesByISBN({ querySelector: () => textarea } as unknown as HTMLFormElement)
+      await createPagesByISBN(textarea.value)
       logseq.UI.closeMsg(msg)
       logseq.UI.showMsg('Bulk import finished.', 'success', { timeout: 3200 })
     } else {
-      // search() reads form.id and form input[type=text]; adapt our single form.
       await search({
         id: currentMode,
         querySelector: (sel: string) =>
@@ -103,16 +104,15 @@ function wireModal() {
 }
 
 /** Result cards for the search output area. */
-export const createTable = (items: any[]): string => {
+export const createTable = (results: BookResult[]): string => {
   let cards = ''
-  for (const item of items) {
-    const vi = item.volumeInfo ?? {}
-    const img = vi.imageLinks?.thumbnail
-      ? `<img src="${escAttr(vi.imageLinks.thumbnail)}" alt=""/>`
+  results.forEach((b, i) => {
+    const img = b.thumbnail
+      ? `<img src="${escAttr(b.thumbnail)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;lrl-noimg&quot;>No cover</div>'"/>`
       : `<div class="lrl-noimg">No cover</div>`
-    const title = escAttr((vi.title || '').slice(0, 90))
-    const author = vi.authors ? escAttr([].concat(vi.authors).join(', ')) : ''
-    const meta = [vi.publisher, vi.publishedDate].filter(Boolean).join(' · ')
+    const title = escAttr((b.title || '').slice(0, 90))
+    const author = b.authors.length ? escAttr(b.authors.join(', ')) : ''
+    const meta = [b.publisher, b.publishedDate].filter(Boolean).join(' · ')
     cards += `
       <li class="lrl-result">
         <div class="lrl-result-cover">${img}</div>
@@ -121,30 +121,34 @@ export const createTable = (items: any[]): string => {
           ${author ? `<div class="lrl-result-author">${author}</div>` : ''}
           ${meta ? `<div class="lrl-result-meta">${escAttr(meta)}</div>` : ''}
           <div class="lrl-result-actions">
-            <button class="lrl-add lrl-primary" data-title="${escAttr((vi.title || '').replaceAll('/', ' '))}">Add to reading list</button>
-            ${vi.infoLink ? `<a href="${escAttr(vi.infoLink)}" target="_blank" class="lrl-link">Google Books ↗</a>` : ''}
+            <button class="lrl-add lrl-primary" data-index="${i}">Add to reading list</button>
+            ${b.infoLink ? `<a href="${escAttr(b.infoLink)}" target="_blank" class="lrl-link">Details ↗</a>` : ''}
           </div>
         </div>
       </li>`
-  }
+  })
   return `<h2 class="lrl-results-h">Results</h2><ul class="lrl-results">${cards}</ul>`
 }
 
 /** Wire the per-result "Add" buttons (called by search.ts after render). */
 export const attachResultHandlers = (
   closeFn: () => void,
-  openFn: () => void,
-  data: any,
+  _openFn: () => void,
+  results: BookResult[],
 ) => {
   const buttons = document.querySelectorAll('.lrl-add')
-  let idx = 0
+  let first = true
   for (const btn of buttons) {
-    if (idx === 0) (btn as HTMLElement).focus()
-    idx++
+    if (first) {
+      ;(btn as HTMLElement).focus()
+      first = false
+    }
     btn.addEventListener('click', async (event) => {
       event.preventDefault()
-      const selectedTitle = (btn as HTMLElement).dataset.title || ''
-      const fullTitle = bookPageName(selectedTitle)
+      const idx = Number((btn as HTMLElement).dataset.index)
+      const book = results[idx]
+      if (!book) return
+      const fullTitle = bookPageName(book.title)
       const exists = (await logseq.Editor.getPage(fullTitle)) as
         | { uuid: PageEntity['uuid'] }
         | null
@@ -156,7 +160,7 @@ export const attachResultHandlers = (
       if (!ok) return
       closeFn()
       logseq.hideMainUI()
-      await createBookPage(data, selectedTitle, fullTitle)
+      await createBookPage(book, fullTitle)
     })
   }
 }
@@ -184,11 +188,3 @@ function inlineConfirm(message: string): Promise<boolean> {
     box.querySelector('[data-act="cancel"]')?.addEventListener('click', () => done(false))
   })
 }
-
-// Kept for compatibility with the previous export name used elsewhere.
-export const choiceRadioButton = (
-  _radio: Element,
-  closeFn: () => void,
-  openFn: () => void,
-  data: any,
-) => attachResultHandlers(closeFn, openFn, data)

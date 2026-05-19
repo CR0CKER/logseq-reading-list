@@ -1,14 +1,13 @@
 import { PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 import { downloadCover } from './toAssets'
 import { ensureReadingListIndex } from './readingList'
+import { BookResult, fetchDescription } from './providers'
 import {
   BookView,
   DEFAULT_DESCRIPTION_BLOCK_TEMPLATE,
   DEFAULT_GBOOKS_LINK_TEMPLATE,
   READING_STATUSES,
   ReadingStatus,
-  extractIsbn,
-  normalisePublished,
   renderBlock,
   renderBookPageProperties,
   sanitiseForWikilink,
@@ -25,58 +24,43 @@ function slugify(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'book'
 }
 
-export const createBookPage = async (data: any, selectedTitle: string, FullTitle: string) => {
-  const selectedBook = data.items.find(
-    (item: any) => item.volumeInfo?.title?.replaceAll('/', ' ') === selectedTitle,
-  )
-  if (!selectedBook) {
-    logseq.UI.showMsg('Failed to create page: ' + FullTitle, 'error')
-    console.error('logseq-reading-list: no matching book for', FullTitle)
-    return
-  }
-
-  const vi = selectedBook.volumeInfo ?? {}
-  const isbn = extractIsbn(vi.industryIdentifiers)
-  const authors: string[] = Array.isArray(vi.authors) ? vi.authors : vi.authors ? [vi.authors] : []
-  const thumbnail: string = vi.imageLinks?.thumbnail || vi.imageLinks?.smallThumbnail || ''
-  const coverSrc = thumbnail ? thumbnail.replace(/^http:/, 'https:') : ''
+export const createBookPage = async (book: BookResult, fullTitle: string) => {
+  const description = await fetchDescription(book)
 
   const subfolder = (logseq.settings?.assetsSubfolder as string)?.trim() || 'reading-list'
   let cover = ''
-  if (thumbnail && logseq.settings?.saveImage === true) {
-    cover = await downloadCover(thumbnail, isbn || slugify(selectedTitle), subfolder)
+  if (book.thumbnail && logseq.settings?.saveImage === true) {
+    cover = await downloadCover(book.thumbnail, book.isbn || slugify(book.title), subfolder)
   }
-  // If asset download is off or failed, embed the remote thumbnail so the
-  // page still shows a cover.
-  if (!cover && coverSrc) cover = `![cover](${coverSrc})`
+  if (!cover && book.thumbnail) cover = `![cover](${book.thumbnail})`
 
-  const cleanAuthors = authors.map((a) => sanitisePropertyValue(a)).filter(Boolean)
+  const cleanAuthors = book.authors.map((a) => sanitisePropertyValue(a)).filter(Boolean)
   const view: BookView = {
-    title: sanitisePropertyValue(vi.title),
-    fullTitle: FullTitle,
+    title: sanitisePropertyValue(book.title),
+    fullTitle,
     author: cleanAuthors.join(', '),
     authorLinked: cleanAuthors.map((a) => `[[${sanitiseForWikilink(a)}]]`).join(', '),
-    publisher: sanitisePropertyValue(vi.publisher),
-    isbn,
-    published: normalisePublished(vi.publishedDate),
-    pageCount: vi.pageCount ? String(vi.pageCount) : '',
-    description: truncate(sanitisePropertyValue(vi.description)),
+    publisher: sanitisePropertyValue(book.publisher),
+    isbn: book.isbn,
+    published: book.publishedDate,
+    pageCount: book.pageCount,
+    description: truncate(sanitisePropertyValue(description)),
     cover,
-    coverSrc,
-    infoLink: vi.infoLink || '',
+    coverSrc: book.thumbnail,
+    infoLink: book.infoLink,
     status: defaultStatus(),
   }
 
   const properties = renderBookPageProperties(view, logseq.settings?.bookPageTemplate as string)
 
-  const page = (await logseq.Editor.createPage(FullTitle, properties, {
+  const page = (await logseq.Editor.createPage(fullTitle, properties, {
     redirect: true,
     createFirstBlock: true,
   })) as PageEntity | null
 
   if (!page) {
-    logseq.UI.showMsg('Failed to create page: ' + FullTitle, 'error')
-    console.error('logseq-reading-list: createPage returned null for', FullTitle)
+    logseq.UI.showMsg('Failed to create page: ' + fullTitle, 'error')
+    console.error('logseq-reading-list: createPage returned null for', fullTitle)
     return
   }
 
@@ -98,6 +82,6 @@ export const createBookPage = async (data: any, selectedTitle: string, FullTitle
 
   await ensureReadingListIndex()
 
-  console.log('logseq-reading-list: created book page', FullTitle)
-  logseq.UI.showMsg('Page created: ' + FullTitle, 'success', { timeout: 4200 })
+  console.log('logseq-reading-list: created book page', fullTitle)
+  logseq.UI.showMsg('Page created: ' + fullTitle, 'success', { timeout: 4200 })
 }

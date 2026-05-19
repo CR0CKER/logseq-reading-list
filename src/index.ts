@@ -19,18 +19,28 @@ const pluginId = PL.id
 
 const SETTINGS: SettingSchemaDesc[] = [
   {
-    key: 'apiKey',
-    title: 'Google Books API key (recommended)',
+    key: 'dataSource',
+    title: 'Book data source',
     description:
-      'Keyless requests share one global quota pool across every plugin/app worldwide, so you can hit "rate limit" errors even on a private IP when that pool is exhausted. A free API key gives you your own quota. Get one at https://console.cloud.google.com/apis/credentials (enable the "Books API"), paste it here. Leave blank to use the shared keyless pool.',
+      'Open Library (default) is completely keyless with no rate limits — recommended. Google Books often has richer descriptions but its keyless quota is a shared global pool that frequently returns rate-limit errors (add an API key below if you choose it).',
+    type: 'enum',
+    enumChoices: ['Open Library', 'Google Books'],
+    enumPicker: 'select',
+    default: 'Open Library',
+  },
+  {
+    key: 'apiKey',
+    title: 'Google Books API key (Google Books source only)',
+    description:
+      'Only used when the data source is Google Books. Keyless Google requests share one global quota pool across every app worldwide, so you can hit rate-limit errors even on a private IP. A free key gives you your own quota: https://console.cloud.google.com/apis/credentials (enable the "Books API"). Not needed for Open Library.',
     type: 'string',
     default: '',
   },
   {
     key: 'country',
-    title: 'Google Books country code',
+    title: 'Google Books country code (Google Books source only)',
     description:
-      'Required by the Google Books API. Without it, searches from non-US regions silently return zero results. Use your two-letter country code (e.g. US, DE, GB).',
+      'Only used when the data source is Google Books. Required by that API — without it, non-US requests return zero results. Two-letter code (e.g. US, DE, GB). Ignored for Open Library.',
     type: 'string',
     default: 'US',
   },
@@ -93,8 +103,9 @@ const SETTINGS: SettingSchemaDesc[] = [
   },
   {
     key: 'gbooksLinkTemplate',
-    title: 'Google Books link block template (Mustache)',
-    description: 'Block prepended to the page linking to Google Books. Variables: same as above.',
+    title: 'Source link block template (Mustache)',
+    description:
+      'Block prepended to the page linking to the source record (Open Library or Google Books). Variables: same as above.',
     type: 'string',
     inputAs: 'textarea',
     default: DEFAULT_GBOOKS_LINK_TEMPLATE,

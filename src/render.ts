@@ -27,7 +27,7 @@ export const DEFAULT_DESCRIPTION_BLOCK_TEMPLATE = `{{#description}}#+BEGIN_QUOTE
 {{description}}
 #+END_QUOTE{{/description}}`
 
-export const DEFAULT_GBOOKS_LINK_TEMPLATE = `{{#infoLink}}[Go to Google Books]({{infoLink}}){{/infoLink}}`
+export const DEFAULT_GBOOKS_LINK_TEMPLATE = `{{#infoLink}}[More about this book ↗]({{infoLink}}){{/infoLink}}`
 
 export const READING_STATUSES = ['to-read', 'reading', 'read'] as const
 export type ReadingStatus = (typeof READING_STATUSES)[number]
