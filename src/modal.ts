@@ -121,7 +121,7 @@ export const createTable = (results: BookResult[]): string => {
           ${author ? `<div class="lrl-result-author">${author}</div>` : ''}
           ${meta ? `<div class="lrl-result-meta">${escAttr(meta)}</div>` : ''}
           <div class="lrl-result-actions">
-            <button class="lrl-add lrl-primary" data-index="${i}">Add to reading list</button>
+            <button class="lrl-add lrl-primary" data-index="${i}">Add to Logseq</button>
             ${b.infoLink ? `<a href="${escAttr(b.infoLink)}" target="_blank" class="lrl-link">Details ↗</a>` : ''}
           </div>
         </div>

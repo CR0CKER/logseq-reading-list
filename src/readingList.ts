@@ -49,14 +49,6 @@ async function queryBooks(): Promise<BookRow[]> {
     return []
   }
 
-  let graphPath = ''
-  try {
-    const g = (await logseq.App.getCurrentGraph()) as { path?: string } | null
-    graphPath = g?.path || ''
-  } catch {
-    /* ignore */
-  }
-
   const books: BookRow[] = []
   for (const r of rows) {
     const p = Array.isArray(r) ? r[0] : r
@@ -67,13 +59,9 @@ async function queryBooks(): Promise<BookRow[]> {
     const name = p['original-name'] || p['block/original-name'] || p['name'] || p['block/name']
     if (!name) continue
 
-    // Prefer the remote cover-src (always renderable from plugin UI);
-    // fall back to the locally-saved asset resolved against the graph.
-    let imgSrc = String(props['cover-src'] || '')
-    if (!imgSrc) {
-      const rel = pathFromCover(props.cover).replace(/^\.\.\//, '')
-      if (rel && graphPath) imgSrc = `assets://${graphPath}/${rel}`
-    }
+    // The `cover` property holds `![cover](<data-uri or url>)`; the src
+    // works directly in an <img> (no asset-path resolution needed).
+    const imgSrc = pathFromCover(props.cover)
 
     books.push({
       pageName: String(name),

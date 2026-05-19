@@ -1,5 +1,5 @@
 import { PageEntity } from '@logseq/libs/dist/LSPlugin.user'
-import { downloadCover } from './toAssets'
+import { fetchCoverDataUri } from './toAssets'
 import { ensureReadingListIndex } from './readingList'
 import { BookResult, fetchDescription } from './providers'
 import {
@@ -20,19 +20,17 @@ function defaultStatus(): ReadingStatus {
   return (READING_STATUSES as readonly string[]).includes(s) ? (s as ReadingStatus) : 'to-read'
 }
 
-function slugify(s: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'book'
-}
-
 export const createBookPage = async (book: BookResult, fullTitle: string) => {
   const description = await fetchDescription(book)
 
-  const subfolder = (logseq.settings?.assetsSubfolder as string)?.trim() || 'reading-list'
-  let cover = ''
+  // Preferred: a genuinely-local base64 cover embedded in the property.
+  // Fallback: the remote URL. Either way, one `cover` property only.
+  let coverSrc = ''
   if (book.thumbnail && logseq.settings?.saveImage === true) {
-    cover = await downloadCover(book.thumbnail, book.isbn || slugify(book.title), subfolder)
+    coverSrc = await fetchCoverDataUri(book.thumbnail)
   }
-  if (!cover && book.thumbnail) cover = `![cover](${book.thumbnail})`
+  if (!coverSrc && book.thumbnail) coverSrc = book.thumbnail
+  const cover = coverSrc ? `![cover](${coverSrc})` : ''
 
   const cleanAuthors = book.authors.map((a) => sanitisePropertyValue(a)).filter(Boolean)
   const view: BookView = {

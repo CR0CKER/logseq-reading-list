@@ -20,12 +20,9 @@ export const DEFAULT_BOOK_PAGE_TEMPLATE = `status:: {{status}}
 {{#published}}published:: {{published}}{{/published}}
 {{#pageCount}}pages:: {{pageCount}}{{/pageCount}}
 {{#cover}}cover:: {{cover}}{{/cover}}
-{{#coverSrc}}cover-src:: {{coverSrc}}{{/coverSrc}}
 tags:: [[Reading]]`
 
-export const DEFAULT_DESCRIPTION_BLOCK_TEMPLATE = `{{#description}}#+BEGIN_QUOTE
-{{description}}
-#+END_QUOTE{{/description}}`
+export const DEFAULT_DESCRIPTION_BLOCK_TEMPLATE = `{{#description}}> {{description}}{{/description}}`
 
 export const DEFAULT_GBOOKS_LINK_TEMPLATE = `{{#infoLink}}[More about this book ↗]({{infoLink}}){{/infoLink}}`
 

@@ -77,18 +77,11 @@ const SETTINGS: SettingSchemaDesc[] = [
     default: 'Reading List',
   },
   {
-    key: 'assetsSubfolder',
-    title: 'Cover assets subfolder',
-    description: 'Subfolder under the plugin asset storage where covers are saved.',
-    type: 'string',
-    default: 'reading-list',
-  },
-  {
     key: 'bookPageTemplate',
     title: 'Book page template (Mustache)',
     description:
       'Mustache template for the book page properties. Output is parsed line-by-line as `key:: value` and written via Logseq\'s structured createPage API. `status` is always injected even if you remove it (the reading-list grid depends on it). ' +
-      'Variables: {{title}}, {{author}}, {{authorLinked}} (each as [[wikilink]]), {{publisher}}, {{isbn}}, {{published}}, {{pageCount}}, {{cover}} (local asset markdown), {{coverSrc}} (remote URL), {{description}}, {{infoLink}}, {{status}}.',
+      'Variables: {{title}}, {{author}}, {{authorLinked}} (each as [[wikilink]]), {{publisher}}, {{isbn}}, {{published}}, {{pageCount}}, {{cover}} (markdown image — local base64 data URI, or remote URL fallback), {{coverSrc}} (raw remote URL), {{description}}, {{infoLink}}, {{status}}.',
     type: 'string',
     inputAs: 'textarea',
     default: DEFAULT_BOOK_PAGE_TEMPLATE,

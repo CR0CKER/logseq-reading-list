@@ -1,38 +1,17 @@
-import { IAsyncStorage } from '@logseq/libs/dist/modules/LSPlugin.Storage'
 import '@logseq/libs'
 
 /**
- * Download a cover image into the plugin's sandbox asset storage and
- * return the markdown image ref to embed as the `cover` property.
+ * Fetch a remote cover and return it as a base64 `data:` URI.
  *
- * Files are stored under
- *   assets/storages/<plugin-id>/<subfolder>/<isbn>.jpg
- * (sandbox storage is the only path a 0.0.17 plugin can reliably write;
- * the relative ref still renders and is graph-portable).
- *
- * Returns '' if the image can't be fetched/stored so the caller can
- * fall back to the remote URL.
+ * Why not a real asset file: Logseq's plugin sandbox storage writes the
+ * value as a UTF-8 string over an IPC bridge, which corrupts binary JPEG
+ * bytes (the "broken cover file" symptom). A data URI is a genuinely
+ * local copy — embedded in the graph markdown, offline-safe, portable,
+ * and never a broken link. Returns '' on failure so the caller can fall
+ * back to the remote URL.
  */
-export const downloadCover = async (
-  imgUrl: string,
-  isbnOrSlug: string,
-  subfolder: string,
-): Promise<string> => {
-  if (!imgUrl || !isbnOrSlug) return ''
-  const storage = logseq.Assets.makeSandboxStorage() as IAsyncStorage
-  const rel = `${subfolder}/${isbnOrSlug}.jpg`
-  const marker = `${isbnOrSlug}-${subfolder}`
-  const coverMd = `![${isbnOrSlug}](../assets/storages/${logseq.baseInfo.id}/${rel})`
-
-  try {
-    if ((await storage.hasItem(rel)) as boolean) {
-      // Already downloaded — offline-safe, dedupes re-adds.
-      return coverMd
-    }
-  } catch (e) {
-    console.warn('logseq-reading-list: storage.hasItem failed', e)
-  }
-
+export const fetchCoverDataUri = async (imgUrl: string): Promise<string> => {
+  if (!imgUrl) return ''
   try {
     const response = await fetch(imgUrl.replace(/^http:/, 'https:'))
     if (!response.ok) {
@@ -40,38 +19,26 @@ export const downloadCover = async (
       return ''
     }
     const blob = await response.blob()
-    const content = await blobToBinaryString(blob)
-    await storage.setItem(rel, content)
-    console.log('logseq-reading-list: saved cover', rel, marker)
-    return coverMd
+    const type = blob.type && blob.type.startsWith('image/') ? blob.type : 'image/jpeg'
+    const base64 = await blobToBase64(blob)
+    if (!base64) return ''
+    return `data:${type};base64,${base64}`
   } catch (e) {
     console.warn('logseq-reading-list: cover download failed', e)
     return ''
   }
 }
 
-/**
- * FileReader is callback-based; wrap it in a promise so the caller can
- * await the saved file before creating the page (upstream did not await,
- * causing a race where the cover ref pointed at a not-yet-written file).
- */
-function blobToBinaryString(blob: Blob): Promise<string> {
+function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onerror = () => reject(reader.error)
     reader.onload = () => {
-      const buf = reader.result as ArrayBuffer
-      const bytes = new Uint8Array(buf)
-      let binary = ''
-      const chunk = 0x8000
-      for (let i = 0; i < bytes.length; i += chunk) {
-        binary += String.fromCharCode.apply(
-          null,
-          bytes.subarray(i, i + chunk) as unknown as number[],
-        )
-      }
-      resolve(binary)
+      // result is "data:<type>;base64,<payload>"; keep only the payload.
+      const result = String(reader.result || '')
+      const comma = result.indexOf(',')
+      resolve(comma >= 0 ? result.slice(comma + 1) : '')
     }
-    reader.readAsArrayBuffer(blob)
+    reader.readAsDataURL(blob)
   })
 }
