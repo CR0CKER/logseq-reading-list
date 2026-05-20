@@ -149,18 +149,16 @@ const GRID_CSS = `
 .ls-block:has(> .block-main-container > .block-content-wrapper .lrl-readinglist) > .block-main-container > .block-control-wrap,
 .ls-block:has(> div > div .lrl-readinglist) > div > .block-control-wrap { display: none; }
 
-/* Logseq caps page/block width for readable prose, which squashes the
- * grid to ~2 cards per row. Lift the cap on the chain of ancestors of
- * our grid so it can use the full viewport width on the Reading List
- * page; scoped via :has() so it only affects pages that host us. */
-.cp__sidebar-main-content:has(.lrl-readinglist),
-.cp__sidebar-main-content:has(.lrl-readinglist) .page,
-.cp__sidebar-main-content:has(.lrl-readinglist) .page-blocks-inner,
-.cp__sidebar-main-content:has(.lrl-readinglist) .ls-page-blocks,
-.ls-block:has(.lrl-readinglist),
-.ls-block:has(.lrl-readinglist) > .block-main-container,
-.ls-block:has(.lrl-readinglist) > .block-main-container > .block-content-wrapper,
-.ls-block:has(.lrl-readinglist) > .block-main-container > .block-content-wrapper > .block-content { max-width: none !important; width: 100% !important; }
+/* Logseq wraps the macro-renderer slot in a chain that includes an
+ * inline <span class="inline"> AND a .block-content carrying the
+ * .inline class. Inline boxes collapse to content width, so width:100%
+ * inside them is ignored — that's what's squashing the grid. Force the
+ * relevant ancestors to block layout. Scoped via :has() so this only
+ * affects boxes that actually contain our renderer. */
+.block-content:has(.lrl-readinglist),
+span:has(> .lsp-hook-ui-slot .lrl-readinglist),
+.lsp-hook-ui-slot:has(.lrl-readinglist),
+.lsp-hook-ui-slot:has(.lrl-readinglist) > [data-injected-ui] { display: block !important; width: 100% !important; max-width: none !important; }
 
 .lrl-readinglist{font-size:14px;width:100%;}
 .lrl-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 14px;flex-wrap:wrap;}
