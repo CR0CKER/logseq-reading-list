@@ -5,6 +5,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reading List</title>
+  <!--
+    Load Inter into the iframe's own document.
+
+    Why: @font-face declarations are scoped per-document in Chromium.
+    Logseq's main app loads Inter, but the plugin iframe is a separate
+    document and doesn't inherit those font faces, so `font-family: Inter`
+    inside the iframe falls through to system-ui. Pulling Inter from
+    Google Fonts here makes the popup actually render in Logseq's
+    default font.
+
+    preconnect to make the font CSS request fast; `display=swap` so the
+    fallback system font is used until Inter arrives (no FOIT).
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 </head>
 
 <body>
@@ -82,11 +99,14 @@
       color: var(--ls-primary-text-color);
     }
     .lrl-seg:hover { background: var(--ls-tertiary-background-color); }
-    .lrl-seg-active {
+    .lrl-seg-active,
+    .lrl-seg-active:hover {
       /* --ls-link-text-color is the accent in most themes; fall through
          to --ls-active-primary-color and finally a hard blue so the
          pill is never empty (which would render the white text
-         invisibly on the page background). */
+         invisibly on the page background). The :hover repeat matches
+         the (0,2,0) specificity of .lrl-seg:hover so the active fill
+         survives on hover. */
       background: var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));
       border-color: var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));
       color: #fff;

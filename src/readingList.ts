@@ -218,8 +218,14 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 /* Background falls through link-text → active-primary → a hard-coded
  * blue. Without the final fallback an empty --ls-link-text-color (some
  * light themes don't set it) gives an empty value and the chip renders
- * transparent — white text then disappears on the page background. */
-.lrl-chip-active{background:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));border-color:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));color:#fff;}
+ * transparent — white text then disappears on the page background.
+ *
+ * Note .lrl-chip-active:hover: .lrl-chip:hover has specificity (0,2,0)
+ * vs (0,1,0) for .lrl-chip-active, so on hover the bare-active rule
+ * loses and the chip reverts to the hover bg (white text → invisible).
+ * Repeating the rule with the :hover pseudo matches specificity. */
+.lrl-chip-active,
+.lrl-chip-active:hover{background:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));border-color:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));color:#fff;}
 .lrl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:18px;width:100%;}
 .lrl-card{cursor:pointer;display:flex;flex-direction:column;gap:6px;}
 .lrl-cover-wrap{position:relative;aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:var(--ls-tertiary-background-color);box-shadow:0 1px 6px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;}
