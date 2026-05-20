@@ -6,13 +6,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reading List</title>
   <!--
-    Fonts are not bundled. The popup uses Logseq's --ls-font-family if
-    the parent page exposes it (read by src/theme.ts at modal open),
-    otherwise falls through the system-font stack defined in the
-    body rule below. Bundling Inter via @fontsource/Parcel introduced
-    a multi-file CSS+woff2 asset chain that destabilised the iframe
-    inside Logseq — keeping the popup zero-external-asset for now.
+    Load Inter into the iframe's own document from Google Fonts.
+
+    @font-face declarations are document-scoped in Chromium, so even
+    though Logseq's main document loads Inter, the plugin iframe is a
+    separate document and doesn't inherit those font faces. Pulling
+    Inter directly here makes the popup actually render in Logseq's
+    default font.
+
+    preconnect to make the font CSS request fast; `display=swap` so the
+    system-font fallback shows until Inter arrives (no FOIT).
+
+    Trade-off: this is a runtime request to fonts.googleapis.com and
+    fonts.gstatic.com whenever the modal opens. If full offline use
+    matters, see commit history for the @fontsource bundle experiment;
+    it was reverted because it interacted badly with Logseq's iframe
+    plugin loader.
   -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 </head>
 
 <body>
