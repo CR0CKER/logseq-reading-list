@@ -89,8 +89,9 @@ const SETTINGS: SettingSchemaDesc[] = [
   },
   {
     key: 'descriptionBlockTemplate',
-    title: 'Description block template (Mustache)',
-    description: 'Block prepended to the page with the synopsis. Variables: same as above.',
+    title: 'Description block template (Mustache, optional)',
+    description:
+      'Extra block prepended to the page with the synopsis. Default is empty because the summary already lives in the properties block. Set e.g. `{{#description}}> {{description}}{{/description}}` if you want a Markdown blockquote as well. Variables: same as the book page template.',
     type: 'string',
     inputAs: 'textarea',
     default: DEFAULT_DESCRIPTION_BLOCK_TEMPLATE,

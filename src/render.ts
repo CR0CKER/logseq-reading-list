@@ -15,15 +15,20 @@ import Mustache from 'mustache'
  */
 export const DEFAULT_BOOK_PAGE_TEMPLATE = `status:: {{status}}
 {{#authorLinked}}author:: {{authorLinked}}{{/authorLinked}}
+full-title:: {{title}}
 {{#publisher}}publisher:: {{publisher}}{{/publisher}}
 {{#isbn}}isbn:: {{isbn}}{{/isbn}}
 {{#published}}published:: {{published}}{{/published}}
 {{#pageCount}}pages:: {{pageCount}}{{/pageCount}}
 {{#cover}}cover:: {{cover}}{{/cover}}
 category:: #Books
+{{#description}}summary:: {{description}}{{/description}}
 {{#tagsLinked}}tags:: {{tagsLinked}}{{/tagsLinked}}`
 
-export const DEFAULT_DESCRIPTION_BLOCK_TEMPLATE = `{{#description}}> {{description}}{{/description}}`
+// Empty default: with `summary::` now in the properties block above,
+// a separate description block is redundant. Setting is kept so users
+// can opt back in with a custom template (e.g. a Markdown blockquote).
+export const DEFAULT_DESCRIPTION_BLOCK_TEMPLATE = ''
 
 export const DEFAULT_COVER_BLOCK_TEMPLATE = `{{#coverImage}}{{coverImage}}{{/coverImage}}`
 

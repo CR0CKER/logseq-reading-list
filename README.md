@@ -96,23 +96,33 @@ plugin handles the slot and emits:
 
 ## Book page layout
 
-Each newly added book is a page with **four sibling blocks** in this
+Each newly added book is a page with **three sibling blocks** in this
 order:
 
 1. **Cover image** — a regular block containing the markdown image,
    left-aligned, full-width.
 2. **Properties block** — an empty-content block carrying the rendered
-   `key:: value` lines (`status::`, `author::`, `publisher::`,
-   `isbn::`, `published::`, `pages::`, `cover::`, `category:: #Books`,
-   and `tags::` populated with topic subjects from Open Library /
-   categories from Google Books). The convention matches
-   `sync-koreader-highlights`: `category::` marks the page type
-   (`#Books`); `tags::` is reserved for topic tags (what the book is
-   *about*) and stays editable per book.
-3. **Description** — `> Markdown blockquote` with the synopsis
-   (HTML-sanitised and truncated to 500 chars).
-4. **Source link** — `[More about this book ↗](...)` to the
+   `key:: value` lines:
+   - `status::` (`to-read` / `reading` / `read`)
+   - `author::` (each author as `[[wikilink]]`)
+   - `full-title::` (raw title, even if the page name was sanitised
+     — e.g. `:` → ` — `)
+   - `publisher::`, `isbn::`, `published::` (yyyy/MM), `pages::`,
+     `cover::` (bare path/URL)
+   - `category:: #Books` (page type marker)
+   - `summary::` (HTML-sanitised, truncated synopsis)
+   - `tags::` (topic tags from Open Library `subject` / Google Books
+     `categories`, capped at 5)
+
+   Convention matches `sync-koreader-highlights`: `category::` marks
+   the page type, `summary::` holds the description text, `tags::` is
+   reserved for topic tags (what the book is *about*).
+3. **Source link** — `[More about this book ↗](...)` to the
    Open Library or Google Books record.
+
+> An optional fourth block (a Markdown blockquote description) is
+> supported via the `descriptionBlockTemplate` setting but is empty by
+> default — `summary::` covers it.
 
 Properties live on a content block (not as page-level properties)
 because Logseq always renders page-level properties between the title
@@ -156,7 +166,7 @@ Two sources, switchable in settings (**Book data source**):
 | `readingListPageName` | `Reading List` | Name of the page that hosts the cover grid. |
 | `bookPageTemplate` | *(Mustache)* | Property block template. |
 | `coverBlockTemplate` | *(Mustache)* | Cover image block template. Set empty to suppress. |
-| `descriptionBlockTemplate` | *(Mustache)* | Description block template. |
+| `descriptionBlockTemplate` | *(empty)* | Optional extra description block template (default empty since `summary::` is now a property). Set e.g. `{{#description}}> {{description}}{{/description}}` to add a Markdown blockquote. |
 | `gbooksLinkTemplate` | *(Mustache)* | Source-link block template. |
 | `lastSort` *(hidden)* | `added` | Grid sort preference; written automatically by the dropdown, persisted across reloads. |
 
