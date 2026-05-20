@@ -23,6 +23,11 @@ interface BookRow {
 let lastSlot: string | null = null
 let currentFilter = 'all'
 let sortMenuOpen = false
+/** Viewport coordinates for the sort menu, captured when it's opened.
+ *  Using position:fixed bypasses the offset-parent resolution problem
+ *  caused by Logseq's positioning contexts on ancestors of our slot. */
+let sortMenuTop = 0
+let sortMenuRight = 0
 
 /** Sort preference persists across reloads (stored in plugin settings). */
 function getSort(): 'added' | 'alpha' {
@@ -153,12 +158,11 @@ function gridHtml(books: BookRow[]): string {
   const body = filtered.length
     ? `<div class="lrl-grid">${filtered.map(card).join('')}</div>`
     : `<div class="lrl-empty">No books${currentFilter === 'all' ? ' yet' : ` marked “${STATUS_LABEL[currentFilter] || currentFilter}”`}. Use the Reading List toolbar button to add some.</div>`
-  // Inline-style positioning with !important. Inline !important sits at
-  // the top of the cascade and beats any author rule (including !important
-  // ones in Logseq's stylesheet that were resetting position on the
-  // wrapper / menu and forcing it to anchor to a much larger ancestor).
+  // Position the menu with viewport-fixed coordinates captured from the
+  // button when the menu opens. This sidesteps every offset-parent /
+  // cascade issue we hit with position:absolute.
   const menu = sortMenuOpen
-    ? `<div class="lrl-sort-menu" role="menu" style="position:absolute !important;right:0 !important;top:calc(100% + 6px) !important;">
+    ? `<div class="lrl-sort-menu" role="menu" style="position:fixed !important;top:${sortMenuTop}px !important;right:${sortMenuRight}px !important;">
         <button class="lrl-sort-item${sort === 'added' ? ' lrl-sort-active' : ''}" data-on-click="rlSort" data-sort="added">Recently added</button>
         <button class="lrl-sort-item${sort === 'alpha' ? ' lrl-sort-active' : ''}" data-on-click="rlSort" data-sort="alpha">A → Z</button>
       </div>`
@@ -166,7 +170,7 @@ function gridHtml(books: BookRow[]): string {
   return `<div class="lrl-readinglist">
     <div class="lrl-bar">
       <div class="lrl-chips">${chips}</div>
-      <div class="lrl-sort" style="position:relative !important;flex:0 0 auto;">
+      <div class="lrl-sort" style="flex:0 0 auto;">
         <button class="lrl-chip" data-on-click="rlToggleSortMenu" title="Change sort order">↕ ${sortLabel}</button>
         ${menu}
       </div>
@@ -252,7 +256,26 @@ export const readingListModel = {
   async rlRefresh() {
     if (lastSlot) await renderInto(lastSlot)
   },
-  async rlToggleSortMenu() {
+  async rlToggleSortMenu(e: any) {
+    if (!sortMenuOpen) {
+      // Capture the click target's bounding rect in viewport coordinates.
+      // `e` here is the event-payload Logseq hands to provideModel
+      // handlers; on click events it carries a synthetic target reference.
+      // We read from parent.document directly to be safe across builds.
+      try {
+        const btn = parent.document.querySelector(
+          '.lrl-sort .lrl-chip[data-on-click="rlToggleSortMenu"]',
+        ) as HTMLElement | null
+        if (btn) {
+          const r = btn.getBoundingClientRect()
+          sortMenuTop = Math.round(r.bottom + 6)
+          sortMenuRight = Math.round(parent.innerWidth - r.right)
+        }
+      } catch {
+        sortMenuTop = 60
+        sortMenuRight = 16
+      }
+    }
     sortMenuOpen = !sortMenuOpen
     if (lastSlot) await renderInto(lastSlot)
   },
