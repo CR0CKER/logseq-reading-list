@@ -217,7 +217,7 @@ omits it — the grid query depends on it.
 
 - Forked from [@YU000jp/logseq-plugin-google-books](https://github.com/YU000jp/logseq-plugin-google-books) (MIT).
 - Architecture reference for Mustache templates + settings backfill:
-  Nils's `sync-koreader-highlights` plugin.
+  my [`sync-koreader-highlights`](https://github.com/CR0CKER/sync-koreader-highlights) plugin.
 - Asset-write pattern verified against
   [@YU000jp/logseq-plugin-multiple-assets](https://github.com/YU000jp/logseq-plugin-multiple-assets).
 - [Open Library API](https://openlibrary.org/developers/api),
