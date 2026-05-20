@@ -180,11 +180,28 @@ function inlineConfirm(message: string): Promise<boolean> {
       </div>`
     box.style.display = 'flex'
     const done = (v: boolean) => {
+      document.removeEventListener('keydown', onKey, true)
       box.style.display = 'none'
       box.innerHTML = ''
       resolve(v)
     }
+    // Capture-phase keydown so the parent form (still mounted in the
+    // background) can't swallow Enter and re-trigger a search.
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        e.stopPropagation()
+        done(true)
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        done(false)
+      }
+    }
+    document.addEventListener('keydown', onKey, true)
+    const okBtn = box.querySelector('[data-act="ok"]') as HTMLButtonElement | null
     box.querySelector('[data-act="ok"]')?.addEventListener('click', () => done(true))
     box.querySelector('[data-act="cancel"]')?.addEventListener('click', () => done(false))
+    okBtn?.focus()
   })
 }
