@@ -202,24 +202,28 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 .lrl-readinglist{font-size:14px;width:calc(100% + 4rem);margin-right:-4rem;padding-left:1.5rem;box-sizing:border-box;}
 .lrl-bar{display:flex;align-items:center;gap:8px;margin:4px 0 14px;}
 .lrl-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1 1 auto;min-width:0;}
-/* Use --ls-secondary-text-color for the border: Logseq designs this
- * variable to be visible against the page background in both light
- * and dark themes (it's the colour Logseq itself uses for subtle UI
- * accents).
+/* The grid is rendered into Logseq's *main DOM* (via provideUI), where
+ * I can't assume any --ls-* variable is defined: theme.ts only injects
+ * those into the plugin iframe. When `var(--undefined)` has no fallback
+ * the entire CSS declaration is invalidated, which is why earlier
+ * border attempts collapsed to the UA default (no border at all).
  *
- * !important + a parent class on the selector are necessary because
- * Logseq's main-document CSS resets <button> borders/backgrounds; its
- * `button` rule loads after ours, has equal specificity, and would
- * otherwise win the cascade. Scoping to .lrl-readinglist keeps the
- * rule local to the renderer slot. */
-.lrl-readinglist .lrl-chip{appearance:none !important;border:1px solid var(--ls-primary-text-color) !important;background:var(--ls-secondary-background-color) !important;color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;display:inline-flex;align-items:center;gap:5px;}
+ * Use currentColor (always defined; equals the chip's text colour
+ * after Logseq's body inheritance) for the border, and a translucent
+ * color-mix of currentColor for the subtle pill background. Both
+ * derive from the same property the chip text already uses, so
+ * whatever colour Logseq actually renders the text in, the chip is
+ * outlined and tinted in a matching, visible variant — works on any
+ * theme with no variable dependencies. !important + .lrl-readinglist
+ * parent class keep Logseq's <button> reset from winning the cascade. */
+.lrl-readinglist .lrl-chip{appearance:none !important;border:1px solid currentColor !important;background:color-mix(in srgb, currentColor 6%, transparent) !important;color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;display:inline-flex;align-items:center;gap:5px;}
 .lrl-readinglist .lrl-chip svg{display:block;}
 .lrl-sort{position:relative !important;flex:0 0 auto;}
 .lrl-sort-menu{position:absolute !important;right:0 !important;top:calc(100% + 6px) !important;background:var(--ls-primary-background-color);border:1px solid var(--ls-border-color);border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,.28);min-width:160px;padding:4px;z-index:50;display:flex;flex-direction:column;}
 .lrl-sort-item{appearance:none;border:none;background:transparent;color:var(--ls-primary-text-color);text-align:left;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:13px;}
 .lrl-sort-item:hover{background:var(--ls-tertiary-background-color);}
 .lrl-sort-active{color:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));font-weight:600;}
-.lrl-readinglist .lrl-chip:hover{background:var(--ls-tertiary-background-color) !important;}
+.lrl-readinglist .lrl-chip:hover{background:color-mix(in srgb, currentColor 14%, transparent) !important;}
 /* Background falls through link-text → active-primary → a hard-coded
  * blue. Without the final fallback an empty --ls-link-text-color (some
  * light themes don't set it) gives an empty value and the chip renders
