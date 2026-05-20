@@ -22,6 +22,7 @@ interface BookRow {
 // Re-render targets the same slot when a filter chip is clicked.
 let lastSlot: string | null = null
 let currentFilter = 'all'
+let sortMenuOpen = false
 
 /** Sort preference persists across reloads (stored in plugin settings). */
 function getSort(): 'added' | 'alpha' {
@@ -152,19 +153,20 @@ function gridHtml(books: BookRow[]): string {
   const body = filtered.length
     ? `<div class="lrl-grid">${filtered.map(card).join('')}</div>`
     : `<div class="lrl-empty">No books${currentFilter === 'all' ? ' yet' : ` marked “${STATUS_LABEL[currentFilter] || currentFilter}”`}. Use the Reading List toolbar button to add some.</div>`
+  const menu = sortMenuOpen
+    ? `<div class="lrl-sort-menu" role="menu">
+        <button class="lrl-sort-item${sort === 'added' ? ' lrl-sort-active' : ''}" data-on-click="rlSort" data-sort="added">Recently added</button>
+        <button class="lrl-sort-item${sort === 'alpha' ? ' lrl-sort-active' : ''}" data-on-click="rlSort" data-sort="alpha">A → Z</button>
+      </div>`
+    : ''
   return `<div class="lrl-readinglist">
     <div class="lrl-bar">
       <div class="lrl-chips">${chips}</div>
-      <div class="lrl-bar-right">
-        <details class="lrl-sort">
-          <summary class="lrl-chip" title="Change sort order">↕ ${sortLabel}</summary>
-          <div class="lrl-sort-menu" role="menu">
-            <button class="lrl-sort-item${sort === 'added' ? ' lrl-sort-active' : ''}" data-on-click="rlSort" data-sort="added">Recently added</button>
-            <button class="lrl-sort-item${sort === 'alpha' ? ' lrl-sort-active' : ''}" data-on-click="rlSort" data-sort="alpha">A → Z</button>
-          </div>
-        </details>
-        <button class="lrl-chip" data-on-click="rlRefresh" title="Refresh">↻</button>
+      <div class="lrl-sort">
+        <button class="lrl-chip" data-on-click="rlToggleSortMenu" title="Change sort order">↕ ${sortLabel}</button>
+        ${menu}
       </div>
+      <button class="lrl-chip" data-on-click="rlRefresh" title="Refresh">↻</button>
     </div>
     ${body}
   </div>`
@@ -189,14 +191,11 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 .lsp-hook-ui-slot:has(.lrl-readinglist),
 .lsp-hook-ui-slot:has(.lrl-readinglist) > [data-injected-ui] { display: block !important; width: 100% !important; max-width: none !important; }
 
-.lrl-readinglist{font-size:14px;width:calc(100% + 4rem);margin-right:-4rem;}
-.lrl-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 14px;flex-wrap:wrap;}
-.lrl-bar-right{display:flex;align-items:center;gap:6px;}
-.lrl-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.lrl-readinglist{font-size:14px;width:calc(100% + 4rem);margin-right:-4rem;padding-left:1rem;box-sizing:border-box;}
+.lrl-bar{display:flex;align-items:center;gap:8px;margin:4px 0 14px;}
+.lrl-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1 1 auto;min-width:0;}
 .lrl-chip{appearance:none;border:1px solid var(--ls-border-color);background:var(--ls-secondary-background-color);color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;}
-.lrl-sort{position:relative !important;display:inline-block;}
-.lrl-sort > summary{list-style:none;cursor:pointer;}
-.lrl-sort > summary::-webkit-details-marker{display:none;}
+.lrl-sort{position:relative;flex:0 0 auto;}
 .lrl-sort-menu{position:absolute !important;right:0 !important;top:calc(100% + 6px) !important;background:var(--ls-primary-background-color);border:1px solid var(--ls-border-color);border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,.28);min-width:160px;padding:4px;z-index:50;display:flex;flex-direction:column;}
 .lrl-sort-item{appearance:none;border:none;background:transparent;color:var(--ls-primary-text-color);text-align:left;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:13px;}
 .lrl-sort-item:hover{background:var(--ls-tertiary-background-color);}
@@ -249,10 +248,15 @@ export const readingListModel = {
   async rlRefresh() {
     if (lastSlot) await renderInto(lastSlot)
   },
+  async rlToggleSortMenu() {
+    sortMenuOpen = !sortMenuOpen
+    if (lastSlot) await renderInto(lastSlot)
+  },
   async rlSort(e: any) {
     const next = e?.dataset?.sort
     if (next === 'added' || next === 'alpha') {
       logseq.updateSettings({ lastSort: next })
+      sortMenuOpen = false
       if (lastSlot) await renderInto(lastSlot)
     }
   },
