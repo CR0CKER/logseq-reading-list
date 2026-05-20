@@ -208,16 +208,16 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 .lrl-sort-menu{position:absolute !important;right:0 !important;top:calc(100% + 6px) !important;background:var(--ls-primary-background-color);border:1px solid var(--ls-border-color);border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,.28);min-width:160px;padding:4px;z-index:50;display:flex;flex-direction:column;}
 .lrl-sort-item{appearance:none;border:none;background:transparent;color:var(--ls-primary-text-color);text-align:left;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:13px;}
 .lrl-sort-item:hover{background:var(--ls-tertiary-background-color);}
-.lrl-sort-active{color:var(--ls-active-primary-color);font-weight:600;}
+.lrl-sort-active{color:var(--ls-link-text-color);font-weight:600;}
 .lrl-chip:hover{background:var(--ls-tertiary-background-color);}
-.lrl-chip-active{background:var(--ls-active-primary-color);border-color:var(--ls-active-primary-color);color:#fff;}
+.lrl-chip-active{background:var(--ls-link-text-color);border-color:var(--ls-link-text-color);color:#fff;}
 .lrl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:18px;width:100%;}
 .lrl-card{cursor:pointer;display:flex;flex-direction:column;gap:6px;}
 .lrl-cover-wrap{position:relative;aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:var(--ls-tertiary-background-color);box-shadow:0 1px 6px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;}
 .lrl-cover{width:100%;height:100%;object-fit:cover;display:block;}
 .lrl-cover-fallback{display:none;padding:8px;text-align:center;font-size:12px;color:var(--ls-secondary-text-color);}
 .lrl-cover-wrap.lrl-nocover .lrl-cover-fallback{display:block;}
-.lrl-card:hover .lrl-cover-wrap{outline:2px solid var(--ls-active-primary-color);}
+.lrl-card:hover .lrl-cover-wrap{outline:2px solid var(--ls-link-text-color);}
 .lrl-meta{display:flex;flex-direction:column;gap:1px;}
 .lrl-title{font-weight:600;color:var(--ls-primary-text-color);line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .lrl-author{color:var(--ls-secondary-text-color);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}

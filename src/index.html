@@ -59,8 +59,11 @@
     }
     .lrl-seg:hover { background: var(--ls-tertiary-background-color); }
     .lrl-seg-active {
-      background: var(--ls-active-primary-color);
-      border-color: var(--ls-active-primary-color);
+      /* Use --ls-link-text-color as the accent: Logseq themes reliably
+         expose it as the visible accent, while --ls-active-primary-color
+         is often left undefined or kept as a generic blue. */
+      background: var(--ls-link-text-color);
+      border-color: var(--ls-link-text-color);
       color: #fff;
     }
 
@@ -75,14 +78,14 @@
     }
     #lrlTextarea { min-height: 84px; resize: vertical; font-family: inherit; }
     #lrlInput:focus, #lrlTextarea:focus {
-      border-color: var(--ls-active-primary-color);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--ls-active-primary-color) 30%, transparent);
+      border-color: var(--ls-link-text-color);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--ls-link-text-color) 30%, transparent);
     }
 
     .lrl-primary {
       appearance: none; cursor: pointer; font-size: 13px; font-weight: 600;
       padding: 9px 16px; border-radius: 8px; border: none;
-      background: var(--ls-active-primary-color); color: #fff;
+      background: var(--ls-link-text-color); color: #fff;
       white-space: nowrap;
     }
     .lrl-primary:hover { filter: brightness(1.08); }
