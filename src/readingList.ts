@@ -235,7 +235,7 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 .lrl-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1 1 auto;min-width:0;}
 /* The grid is rendered into Logseq's *main DOM* (via provideUI), where
  * I can't assume any --ls-* variable is defined: theme.ts only injects
- * those into the plugin iframe. When `var(--undefined)` has no fallback
+ * those into the plugin iframe. When var(--undefined) has no fallback
  * the entire CSS declaration is invalidated, which is why earlier
  * border attempts collapsed to the UA default (no border at all).
  *
