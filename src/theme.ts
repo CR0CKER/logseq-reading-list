@@ -53,12 +53,44 @@ const DARK_FALLBACK: Palette = {
   '--ls-selection-background-color': '#2d4a73',
 }
 
-// Final fallback when readFontFromParent() returns nothing. Don't hard
-// -code Inter here: themes that use a different font would then render
-// the popup in Inter instead of their own font. `system-ui` is the OS
-// UI font on every platform, the closest neutral default we can pick.
+// Tail of every injected font-family chain. Inter is loaded via the
+// Google Fonts <link> in index.html so this acts as a real fallback —
+// if the theme's named font isn't available in the iframe, Inter
+// renders; if Inter is somehow blocked, system-ui (the OS UI font)
+// renders; sans-serif is the never-fails terminator.
 const SYSTEM_FONT =
-  'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+  'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+
+// CSS generic family keywords that always match the browser's default
+// for that family — and therefore short-circuit any subsequent fallback
+// in the chain. We strip these from the theme's reported font list so
+// our Inter / system-ui fallback isn't preempted by a generic
+// terminator (e.g. a theme that ends "Inter, …, serif" would otherwise
+// render serif in the iframe whenever Inter isn't loaded).
+const CSS_GENERIC_FAMILIES = new Set([
+  'serif',
+  'sans-serif',
+  'monospace',
+  'cursive',
+  'fantasy',
+  'system-ui',
+  'ui-serif',
+  'ui-sans-serif',
+  'ui-monospace',
+  'ui-rounded',
+  'math',
+  'emoji',
+  'fangsong',
+])
+
+function stripGenericFamilies(rawChain: string): string {
+  return rawChain
+    .split(',')
+    .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
+    .filter((s) => s && !CSS_GENERIC_FAMILIES.has(s.toLowerCase()))
+    .map((s) => (s.includes(' ') ? `"${s}"` : s))
+    .join(', ')
+}
 
 function readFontFromParent(): string | null {
   try {
@@ -116,8 +148,11 @@ export async function resolvePalette(): Promise<Palette> {
 
 export async function applyTheme(): Promise<void> {
   const palette = await resolvePalette()
-  const font = readFontFromParent() || SYSTEM_FONT
-  palette['--ls-font-family'] = font
+  // Build the full font-family chain ourselves so the iframe CSS can
+  // just consume var(--ls-font-family) without juggling fallbacks:
+  //   <theme's named fonts>, Inter, system-ui, …, sans-serif
+  const detected = stripGenericFamilies(readFontFromParent() || '')
+  palette['--ls-font-family'] = detected ? `${detected}, ${SYSTEM_FONT}` : SYSTEM_FONT
   const css = ':root{' + Object.entries(palette).map(([k, v]) => `${k}:${v};`).join('') + '}'
   let style = document.getElementById('lrl-theme-vars') as HTMLStyleElement | null
   if (!style) {

@@ -6,22 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reading List</title>
   <!--
-    No fonts are pre-loaded.
-
-    src/theme.ts reads the parent document's --ls-font-family (or its
-    computed body font) when the modal opens and injects it into the
-    iframe as :root { --ls-font-family: … }. The CSS below uses
-    var(--ls-font-family, system-ui, …), so the popup renders in
-    whatever font the active Logseq theme names — provided the font
-    is installed on the user's machine. Otherwise the browser falls
-    through to system-ui, which is the cleanest OS-native sans on
-    every platform.
-
-    Pre-loading Inter (whether from Google Fonts or bundled) would only
-    match the default Logseq theme — every non-default theme would get
-    the wrong font. The naming-without-loading approach lets the popup
-    track any theme by name.
+    Font strategy:
+      1. src/theme.ts reads the parent doc's --ls-font-family, strips
+         generic-family terminators (serif/sans-serif/system-ui/…) so
+         they don't short-circuit our fallback, and injects the cleaned
+         list as :root { --ls-font-family: … }.
+      2. The CSS rule below resolves `var(--ls-font-family, …)` to:
+            <theme's named fonts>, Inter, system-ui, -apple-system, …
+         So if the theme's font is locally installed it wins; otherwise
+         the chain falls through to Inter; otherwise to the OS UI font.
+      3. Inter is pulled from Google Fonts so step 2's fallback actually
+         renders — @font-face is document-scoped in Chromium and the
+         iframe doesn't inherit Logseq's main-doc font faces.
   -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 </head>
 
 <body>
@@ -34,11 +35,11 @@
 
     body, .lrl-dialog, .lrl-dialog h1, .lrl-dialog h2,
     .lrl-dialog input, .lrl-dialog textarea, .lrl-dialog button {
-      /* Follow the theme's font by name; fall back to the OS UI font
-         when --ls-font-family isn't injected or the named font isn't
-         installed in the iframe's document. Don't hard-code Inter — it
-         would override every non-default theme. */
-      font-family: var(--ls-font-family, system-ui, -apple-system,
+      /* theme.ts builds the full chain — theme fonts (with generic
+         terminators stripped) → Inter → system-ui → … → sans-serif —
+         and injects it as --ls-font-family. The fallback inside var()
+         only fires if theme.ts didn't run for some reason. */
+      font-family: var(--ls-font-family, Inter, system-ui, -apple-system,
         BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
     }
 
