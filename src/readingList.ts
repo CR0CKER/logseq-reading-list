@@ -130,9 +130,40 @@ async function queryBooks(): Promise<BookRow[]> {
   return books
 }
 
+// Inline-style declarations applied to every chip-shaped button. These
+// have to sit on the element itself (not in a <style> block) because
+// Logseq core appears to aggressively reset button styling inside
+// plugin macro slots — even !important author rules can lose to it.
+// Inline + !important is the highest origin in the author cascade and
+// can't be overridden by any author stylesheet (including Logseq core).
+//
+// The active variant gets fully solid styling overrides the same way;
+// otherwise the .lrl-chip-active CSS rule has the same cascade fight.
+const CHIP_INLINE_STYLE =
+  'border:1px solid currentColor !important;' +
+  'background:color-mix(in srgb, currentColor 6%, transparent) !important;' +
+  'padding:4px 12px !important;' +
+  'border-radius:999px !important;' +
+  'display:inline-flex !important;' +
+  'align-items:center !important;' +
+  'gap:5px !important;' +
+  'cursor:pointer !important;'
+
+const CHIP_ACTIVE_INLINE_STYLE =
+  'border:1px solid var(--ls-link-text-color, #2563eb) !important;' +
+  'background:var(--ls-link-text-color, #2563eb) !important;' +
+  'color:#fff !important;' +
+  'padding:4px 12px !important;' +
+  'border-radius:999px !important;' +
+  'display:inline-flex !important;' +
+  'align-items:center !important;' +
+  'gap:5px !important;' +
+  'cursor:pointer !important;'
+
 function chip(status: string, active: boolean): string {
   const label = status === 'all' ? 'All' : STATUS_LABEL[status] || status
-  return `<button class="lrl-chip${active ? ' lrl-chip-active' : ''}" data-on-click="rlFilter" data-status="${status}">${label}</button>`
+  const style = active ? CHIP_ACTIVE_INLINE_STYLE : CHIP_INLINE_STYLE
+  return `<button class="lrl-chip${active ? ' lrl-chip-active' : ''}" style="${style}" data-on-click="rlFilter" data-status="${status}">${label}</button>`
 }
 
 function card(b: BookRow): string {
@@ -171,10 +202,10 @@ function gridHtml(books: BookRow[]): string {
     <div class="lrl-bar">
       <div class="lrl-chips">${chips}</div>
       <div class="lrl-sort" style="display:flex;align-items:center;flex:0 0 auto;">
-        <button class="lrl-chip" data-on-click="rlToggleSortMenu" title="Change sort order">${sortLabel}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <button class="lrl-chip" style="${CHIP_INLINE_STYLE}" data-on-click="rlToggleSortMenu" title="Change sort order">${sortLabel}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
         ${menu}
       </div>
-      <button class="lrl-chip" data-on-click="rlRefresh" title="Refresh">↻</button>
+      <button class="lrl-chip" style="${CHIP_INLINE_STYLE}" data-on-click="rlRefresh" title="Refresh">↻</button>
     </div>
     ${body}
   </div>`
