@@ -18,7 +18,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@fontsource-variable/inter": "^5.2.8",
     "@logseq/libs": "0.0.17",
     "mustache": "^4.2.0"
   },

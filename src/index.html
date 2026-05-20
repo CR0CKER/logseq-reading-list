@@ -6,10 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reading List</title>
   <!--
-    Inter is bundled into the plugin via `@fontsource-variable/inter`,
-    imported from src/index.ts. Parcel emits the @font-face CSS and
-    copies the woff2 into dist/ so the popup uses Logseq's default
-    font fully offline — no Google Fonts request at runtime.
+    Fonts are not bundled. The popup uses Logseq's --ls-font-family if
+    the parent page exposes it (read by src/theme.ts at modal open),
+    otherwise falls through the system-font stack defined in the
+    body rule below. Bundling Inter via @fontsource/Parcel introduced
+    a multi-file CSS+woff2 asset chain that destabilised the iframe
+    inside Logseq — keeping the popup zero-external-asset for now.
   -->
 </head>
 

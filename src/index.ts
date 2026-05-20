@@ -1,8 +1,4 @@
 import '@logseq/libs' // https://plugins-doc.logseq.com/
-// Bundle Inter into the plugin so the popup renders in Logseq's
-// default font without a runtime request to Google Fonts. Parcel
-// picks the CSS up from this import and copies the woff2 alongside.
-import '@fontsource-variable/inter'
 import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
 import { logseq as PL } from '../package.json'
 import { model } from './modal'
