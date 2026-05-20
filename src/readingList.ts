@@ -160,7 +160,7 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 .lsp-hook-ui-slot:has(.lrl-readinglist),
 .lsp-hook-ui-slot:has(.lrl-readinglist) > [data-injected-ui] { display: block !important; width: 100% !important; max-width: none !important; }
 
-.lrl-readinglist{font-size:14px;width:100%;margin-right:-0.75rem;}
+.lrl-readinglist{font-size:14px;width:100%;margin-right:-1.5rem;}
 .lrl-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 14px;flex-wrap:wrap;}
 .lrl-chips{display:flex;gap:6px;flex-wrap:wrap;}
 .lrl-chip{appearance:none;border:1px solid var(--ls-border-color);background:var(--ls-secondary-background-color);color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;}
