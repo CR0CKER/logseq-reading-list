@@ -205,28 +205,31 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 /* Use --ls-secondary-text-color for the border: Logseq designs this
  * variable to be visible against the page background in both light
  * and dark themes (it's the colour Logseq itself uses for subtle UI
- * accents). --ls-border-color is a hairline that often disappears on
- * white pages, and the color-mix-with-primary-text approach used
- * before rendered too faint on thin 1px strokes against white. */
-.lrl-chip{appearance:none;border:1px solid var(--ls-secondary-text-color);background:var(--ls-secondary-background-color);color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;display:inline-flex;align-items:center;gap:5px;}
-.lrl-chip svg{display:block;}
+ * accents).
+ *
+ * !important + a parent class on the selector are necessary because
+ * Logseq's main-document CSS resets <button> borders/backgrounds; its
+ * `button` rule loads after ours, has equal specificity, and would
+ * otherwise win the cascade. Scoping to .lrl-readinglist keeps the
+ * rule local to the renderer slot. */
+.lrl-readinglist .lrl-chip{appearance:none !important;border:1px solid var(--ls-secondary-text-color) !important;background:var(--ls-secondary-background-color) !important;color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;display:inline-flex;align-items:center;gap:5px;}
+.lrl-readinglist .lrl-chip svg{display:block;}
 .lrl-sort{position:relative !important;flex:0 0 auto;}
 .lrl-sort-menu{position:absolute !important;right:0 !important;top:calc(100% + 6px) !important;background:var(--ls-primary-background-color);border:1px solid var(--ls-border-color);border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,.28);min-width:160px;padding:4px;z-index:50;display:flex;flex-direction:column;}
 .lrl-sort-item{appearance:none;border:none;background:transparent;color:var(--ls-primary-text-color);text-align:left;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:13px;}
 .lrl-sort-item:hover{background:var(--ls-tertiary-background-color);}
 .lrl-sort-active{color:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));font-weight:600;}
-.lrl-chip:hover{background:var(--ls-tertiary-background-color);}
+.lrl-readinglist .lrl-chip:hover{background:var(--ls-tertiary-background-color) !important;}
 /* Background falls through link-text → active-primary → a hard-coded
  * blue. Without the final fallback an empty --ls-link-text-color (some
  * light themes don't set it) gives an empty value and the chip renders
  * transparent — white text then disappears on the page background.
  *
- * Note .lrl-chip-active:hover: .lrl-chip:hover has specificity (0,2,0)
- * vs (0,1,0) for .lrl-chip-active, so on hover the bare-active rule
- * loses and the chip reverts to the hover bg (white text → invisible).
- * Repeating the rule with the :hover pseudo matches specificity. */
-.lrl-chip-active,
-.lrl-chip-active:hover{background:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));border-color:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));color:#fff;}
+ * Duplicate the rule with :hover so it matches the hover specificity
+ * and keeps the active fill on hover. Prefixed with .lrl-readinglist
+ * + !important so it survives Logseq's button reset. */
+.lrl-readinglist .lrl-chip-active,
+.lrl-readinglist .lrl-chip-active:hover{background:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb)) !important;border-color:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb)) !important;color:#fff !important;}
 .lrl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:18px;width:100%;}
 .lrl-card{cursor:pointer;display:flex;flex-direction:column;gap:6px;}
 .lrl-cover-wrap{position:relative;aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:var(--ls-tertiary-background-color);box-shadow:0 1px 6px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;}
