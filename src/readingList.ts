@@ -153,11 +153,12 @@ function gridHtml(books: BookRow[]): string {
   const body = filtered.length
     ? `<div class="lrl-grid">${filtered.map(card).join('')}</div>`
     : `<div class="lrl-empty">No books${currentFilter === 'all' ? ' yet' : ` marked “${STATUS_LABEL[currentFilter] || currentFilter}”`}. Use the Reading List toolbar button to add some.</div>`
-  // Positioning set inline so the CSS cascade can't push the menu's
-  // offset parent up to a larger ancestor (which was making the menu
-  // render way below the sort button).
+  // Inline-style positioning with !important. Inline !important sits at
+  // the top of the cascade and beats any author rule (including !important
+  // ones in Logseq's stylesheet that were resetting position on the
+  // wrapper / menu and forcing it to anchor to a much larger ancestor).
   const menu = sortMenuOpen
-    ? `<div class="lrl-sort-menu" role="menu" style="position:absolute;right:0;top:calc(100% + 6px);">
+    ? `<div class="lrl-sort-menu" role="menu" style="position:absolute !important;right:0 !important;top:calc(100% + 6px) !important;">
         <button class="lrl-sort-item${sort === 'added' ? ' lrl-sort-active' : ''}" data-on-click="rlSort" data-sort="added">Recently added</button>
         <button class="lrl-sort-item${sort === 'alpha' ? ' lrl-sort-active' : ''}" data-on-click="rlSort" data-sort="alpha">A → Z</button>
       </div>`
@@ -165,7 +166,7 @@ function gridHtml(books: BookRow[]): string {
   return `<div class="lrl-readinglist">
     <div class="lrl-bar">
       <div class="lrl-chips">${chips}</div>
-      <div class="lrl-sort" style="position:relative;flex:0 0 auto;">
+      <div class="lrl-sort" style="position:relative !important;flex:0 0 auto;">
         <button class="lrl-chip" data-on-click="rlToggleSortMenu" title="Change sort order">↕ ${sortLabel}</button>
         ${menu}
       </div>
