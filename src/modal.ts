@@ -168,7 +168,17 @@ export const attachResultHandlers = (
         | { uuid: PageEntity['uuid'] }
         | null
       if (exists) {
-        logseq.UI.showMsg(`Page already exists: ${fullTitle}`, 'warning')
+        // Refuse rather than overwrite. The page may have been written
+        // by another plugin (e.g. sync-koreader-highlights) or by hand.
+        // If the user wants the existing page in the grid, they can open
+        // it and add a `status::` property manually.
+        await logseq.UI.showMsg(
+          `Can't add "${book.title}" — a page called [[${fullTitle}]] already exists. ` +
+            `Reading List won't overwrite it. To include the existing page in the grid, ` +
+            `open it and add a "status::" property (to-read / reading / read).`,
+          'error',
+          { timeout: 8000 },
+        )
         return
       }
       const ok = await inlineConfirm(`Create the book page [[${fullTitle}]]?`)

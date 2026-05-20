@@ -44,11 +44,19 @@ export const createPagesByISBN = async (raw: string): Promise<void> => {
   }
 
   if (existPages.length > 0 || notFoundPages.length > 0) {
-    logseq.UI.showMsg(
-      `Already existed (${existPages.length}):\n${existPages.join('\n')}\n` +
-        `Not found (${notFoundPages.length}):\n${notFoundPages.join('\n')}`,
-      'warning',
-      { timeout: 12000 },
-    )
+    // If any ISBN collided with an existing page, those books were NOT
+    // added — make that clear with error severity. Reading List won't
+    // overwrite pages another plugin (or the user) created.
+    const parts: string[] = []
+    if (existPages.length > 0)
+      parts.push(
+        `Skipped because a page already exists (${existPages.length}) — not added:\n` +
+          existPages.join('\n'),
+      )
+    if (notFoundPages.length > 0)
+      parts.push(`Not found in the book service (${notFoundPages.length}):\n` + notFoundPages.join('\n'))
+    logseq.UI.showMsg(parts.join('\n\n'), existPages.length > 0 ? 'error' : 'warning', {
+      timeout: 12000,
+    })
   }
 }
