@@ -1,0 +1,42 @@
+name: release
+
+# Triggered when a tag like v0.1.0, v0.2.0, etc. is pushed. Builds the
+# plugin and attaches a zip of everything Logseq needs to load the
+# plugin (package.json + icon + dist/) to the corresponding GitHub
+# Release. This is the asset the Logseq marketplace pulls from.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to upload assets to the release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Stage release contents
+        run: |
+          mkdir -p release/logseq-reading-list
+          cp -r dist icon.svg LICENSE README.md package.json release/logseq-reading-list/
+
+      - name: Zip plugin
+        run: |
+          cd release
+          zip -r "../logseq-reading-list-${GITHUB_REF_NAME}.zip" logseq-reading-list
+
+      - name: Attach zip to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: logseq-reading-list-*.zip
+          fail_on_unmatched_files: true
