@@ -123,6 +123,13 @@ function gridHtml(books: BookRow[]): string {
 }
 
 const GRID_CSS = `
+/* Hide the bullet of the block hosting our renderer (Logseq draws a
+ * bullet for every block; here the rendered grid is the whole block
+ * content, so the bullet is visually noisy). :has() scopes this strictly
+ * to the renderer block — child blocks keep their bullets. */
+.ls-block:has(> .block-main-container > .block-content-wrapper .lrl-readinglist) > .block-main-container > .block-control-wrap,
+.ls-block:has(> div > div .lrl-readinglist) > div > .block-control-wrap { display: none; }
+
 .lrl-readinglist{font-size:14px;}
 .lrl-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 14px;flex-wrap:wrap;}
 .lrl-chips{display:flex;gap:6px;flex-wrap:wrap;}
