@@ -170,7 +170,7 @@ function gridHtml(books: BookRow[]): string {
   return `<div class="lrl-readinglist">
     <div class="lrl-bar">
       <div class="lrl-chips">${chips}</div>
-      <div class="lrl-sort" style="flex:0 0 auto;">
+      <div class="lrl-sort" style="display:flex;align-items:center;flex:0 0 auto;">
         <button class="lrl-chip" data-on-click="rlToggleSortMenu" title="Change sort order">${sortLabel}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
         ${menu}
       </div>
