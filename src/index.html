@@ -37,8 +37,26 @@
       overflow-y: auto;
       box-shadow: 0 14px 48px rgba(0, 0, 0, 0.35);
       font-size: 14px;
+      /* Firefox + standards: thin themed scrollbar, no track. */
+      scrollbar-width: thin;
+      scrollbar-color: var(--ls-border-color) transparent;
     }
     dialog.lrl-dialog::backdrop { background: rgba(0, 0, 0, 0.45); }
+    /* WebKit/Chromium (Logseq runs Chromium): same effect via pseudos.
+       Transparent track + rounded thumb in the theme border colour,
+       brightening to the secondary-text colour on hover. */
+    dialog.lrl-dialog::-webkit-scrollbar { width: 10px; }
+    dialog.lrl-dialog::-webkit-scrollbar-track { background: transparent; }
+    dialog.lrl-dialog::-webkit-scrollbar-thumb {
+      background: var(--ls-border-color);
+      background-clip: content-box;
+      border: 2px solid transparent;
+      border-radius: 999px;
+    }
+    dialog.lrl-dialog::-webkit-scrollbar-thumb:hover {
+      background: var(--ls-secondary-text-color);
+      background-clip: content-box;
+    }
 
     .lrl-head {
       display: flex; align-items: center; justify-content: space-between;
