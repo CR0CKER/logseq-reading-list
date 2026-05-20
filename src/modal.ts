@@ -78,7 +78,9 @@ function wireModal() {
       if (!bulk) input.placeholder = mode.placeholder
       const out = document.getElementById('outputFromAPI')
       if (out) out.innerHTML = ''
-      ;(bulk ? textarea : input).focus()
+      const target = bulk ? textarea : input
+      target.focus()
+      target.select()
     })
   }
 
@@ -100,7 +102,13 @@ function wireModal() {
     }
   })
 
-  input.focus()
+  // Defer to the next frame: <dialog>.showModal() auto-focuses its first
+  // focusable child (the close button), and Logseq's showMainUI() may
+  // adjust focus too. Wait until those settle, then claim it for the input.
+  requestAnimationFrame(() => {
+    input.focus()
+    input.select()
+  })
 }
 
 /** Result cards for the search output area. */
