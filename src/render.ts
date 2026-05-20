@@ -24,6 +24,8 @@ tags:: [[Reading]]`
 
 export const DEFAULT_DESCRIPTION_BLOCK_TEMPLATE = `{{#description}}> {{description}}{{/description}}`
 
+export const DEFAULT_COVER_BLOCK_TEMPLATE = `{{#coverImage}}{{coverImage}}{{/coverImage}}`
+
 export const DEFAULT_GBOOKS_LINK_TEMPLATE = `{{#infoLink}}[More about this book ↗]({{infoLink}}){{/infoLink}}`
 
 export const READING_STATUSES = ['to-read', 'reading', 'read'] as const
@@ -45,8 +47,11 @@ export interface BookView {
   pageCount: string
   /** HTML-decoded, tag-stripped, length-capped description. */
   description: string
-  /** Markdown image ref to the locally-saved cover (may be empty). */
+  /** Bare path or URL to the cover (no markdown wrapping); used as the
+   *  `cover::` property value so the grid can read it without parsing. */
   cover: string
+  /** Markdown image (`![cover](src)`) for use in a standalone block. */
+  coverImage: string
   /** Raw remote thumbnail URL — guaranteed-renderable grid fallback. */
   coverSrc: string
   infoLink: string

@@ -11,6 +11,7 @@ import { pageOpen, readingListPageName } from './lib'
 import { watchTheme } from './theme'
 import {
   DEFAULT_BOOK_PAGE_TEMPLATE,
+  DEFAULT_COVER_BLOCK_TEMPLATE,
   DEFAULT_DESCRIPTION_BLOCK_TEMPLATE,
   DEFAULT_GBOOKS_LINK_TEMPLATE,
 } from './render'
@@ -95,6 +96,15 @@ const SETTINGS: SettingSchemaDesc[] = [
     default: DEFAULT_DESCRIPTION_BLOCK_TEMPLATE,
   },
   {
+    key: 'coverBlockTemplate',
+    title: 'Cover image block template (Mustache)',
+    description:
+      'Block prepended at the top of the page with the cover image (left-aligned, full width). Set to an empty value to suppress the cover block. Variables: {{coverImage}} (the ready-made `![cover](src)` markdown), plus all of the above.',
+    type: 'string',
+    inputAs: 'textarea',
+    default: DEFAULT_COVER_BLOCK_TEMPLATE,
+  },
+  {
     key: 'gbooksLinkTemplate',
     title: 'Source link block template (Mustache)',
     description:
@@ -108,6 +118,7 @@ const SETTINGS: SettingSchemaDesc[] = [
 const TEMPLATE_DEFAULTS: Record<string, string> = {
   bookPageTemplate: DEFAULT_BOOK_PAGE_TEMPLATE,
   descriptionBlockTemplate: DEFAULT_DESCRIPTION_BLOCK_TEMPLATE,
+  coverBlockTemplate: DEFAULT_COVER_BLOCK_TEMPLATE,
   gbooksLinkTemplate: DEFAULT_GBOOKS_LINK_TEMPLATE,
 }
 

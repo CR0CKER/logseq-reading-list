@@ -4,6 +4,7 @@ import { ensureReadingListIndex } from './readingList'
 import { BookResult, fetchDescription } from './providers'
 import {
   BookView,
+  DEFAULT_COVER_BLOCK_TEMPLATE,
   DEFAULT_DESCRIPTION_BLOCK_TEMPLATE,
   DEFAULT_GBOOKS_LINK_TEMPLATE,
   READING_STATUSES,
@@ -34,7 +35,7 @@ export const createBookPage = async (book: BookResult, fullTitle: string) => {
     coverSrc = await saveCoverAsset(book.thumbnail, book.isbn || slugify(book.title))
   }
   if (!coverSrc && book.thumbnail) coverSrc = book.thumbnail
-  const cover = coverSrc ? `![cover](${coverSrc})` : ''
+  const coverImage = coverSrc ? `![cover](${coverSrc})` : ''
 
   const cleanAuthors = book.authors.map((a) => sanitisePropertyValue(a)).filter(Boolean)
   const view: BookView = {
@@ -47,7 +48,8 @@ export const createBookPage = async (book: BookResult, fullTitle: string) => {
     published: book.publishedDate,
     pageCount: book.pageCount,
     description: truncate(sanitisePropertyValue(description)),
-    cover,
+    cover: coverSrc,
+    coverImage,
     coverSrc: book.thumbnail,
     infoLink: book.infoLink,
     status: defaultStatus(),
@@ -81,6 +83,15 @@ export const createBookPage = async (book: BookResult, fullTitle: string) => {
     view,
   )
   if (descBlock) await logseq.Editor.prependBlockInPage(page.uuid, descBlock)
+
+  // Cover goes last in the prepend chain → ends up at the very top of
+  // the page, above the description.
+  const coverBlock = renderBlock(
+    logseq.settings?.coverBlockTemplate as string,
+    DEFAULT_COVER_BLOCK_TEMPLATE,
+    view,
+  )
+  if (coverBlock) await logseq.Editor.prependBlockInPage(page.uuid, coverBlock)
 
   await ensureReadingListIndex()
 

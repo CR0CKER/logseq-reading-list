@@ -30,10 +30,12 @@ function esc(s: string): string {
     .replace(/"/g, '&quot;')
 }
 
-/** Pull the path out of a `![alt](path)` markdown cover property. */
+/** Get the src out of a `cover` property — either a bare path/URL or a
+ *  legacy `![alt](path)` markdown image (used by older book pages). */
 function pathFromCover(cover: any): string {
-  const m = typeof cover === 'string' ? cover.match(/\]\(([^)]+)\)/) : null
-  return m ? m[1] : ''
+  if (typeof cover !== 'string') return ''
+  const m = cover.match(/\]\(([^)]+)\)/)
+  return m ? m[1] : cover.trim()
 }
 
 async function queryBooks(): Promise<BookRow[]> {
