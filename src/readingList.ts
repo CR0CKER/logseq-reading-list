@@ -212,7 +212,7 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
  * `button` rule loads after ours, has equal specificity, and would
  * otherwise win the cascade. Scoping to .lrl-readinglist keeps the
  * rule local to the renderer slot. */
-.lrl-readinglist .lrl-chip{appearance:none !important;border:1px solid var(--ls-secondary-text-color) !important;background:var(--ls-secondary-background-color) !important;color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;display:inline-flex;align-items:center;gap:5px;}
+.lrl-readinglist .lrl-chip{appearance:none !important;border:1px solid var(--ls-primary-text-color) !important;background:var(--ls-secondary-background-color) !important;color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;display:inline-flex;align-items:center;gap:5px;}
 .lrl-readinglist .lrl-chip svg{display:block;}
 .lrl-sort{position:relative !important;flex:0 0 auto;}
 .lrl-sort-menu{position:absolute !important;right:0 !important;top:calc(100% + 6px) !important;background:var(--ls-primary-background-color);border:1px solid var(--ls-border-color);border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,.28);min-width:160px;padding:4px;z-index:50;display:flex;flex-direction:column;}

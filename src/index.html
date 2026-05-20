@@ -93,9 +93,11 @@
     .lrl-seg {
       appearance: none; cursor: pointer; font-size: 13px;
       padding: 6px 14px; border-radius: 8px;
-      /* Logseq's canonical "subtle but actually visible" border colour;
-         readable in both light and dark themes by design. */
-      border: 1px solid var(--ls-secondary-text-color);
+      /* --ls-primary-text-color is guaranteed to contrast with the page
+         background in any theme (text wouldn't be readable otherwise),
+         so the border is always visible. --ls-secondary-text-color
+         resolves to something near-invisible in some user themes. */
+      border: 1px solid var(--ls-primary-text-color);
       background: var(--ls-secondary-background-color);
       color: var(--ls-primary-text-color);
     }
