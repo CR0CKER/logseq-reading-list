@@ -171,7 +171,7 @@ function gridHtml(books: BookRow[]): string {
     <div class="lrl-bar">
       <div class="lrl-chips">${chips}</div>
       <div class="lrl-sort" style="flex:0 0 auto;">
-        <button class="lrl-chip" data-on-click="rlToggleSortMenu" title="Change sort order">↕ ${sortLabel}</button>
+        <button class="lrl-chip" data-on-click="rlToggleSortMenu" title="Change sort order">${sortLabel}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
         ${menu}
       </div>
       <button class="lrl-chip" data-on-click="rlRefresh" title="Refresh">↻</button>
@@ -202,7 +202,8 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 .lrl-readinglist{font-size:14px;width:calc(100% + 4rem);margin-right:-4rem;padding-left:1.5rem;box-sizing:border-box;}
 .lrl-bar{display:flex;align-items:center;gap:8px;margin:4px 0 14px;}
 .lrl-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1 1 auto;min-width:0;}
-.lrl-chip{appearance:none;border:1px solid var(--ls-border-color);background:var(--ls-secondary-background-color);color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;}
+.lrl-chip{appearance:none;border:1px solid var(--ls-border-color);background:var(--ls-secondary-background-color);color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;display:inline-flex;align-items:center;gap:5px;}
+.lrl-chip svg{display:block;}
 .lrl-sort{position:relative !important;flex:0 0 auto;}
 .lrl-sort-menu{position:absolute !important;right:0 !important;top:calc(100% + 6px) !important;background:var(--ls-primary-background-color);border:1px solid var(--ls-border-color);border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,.28);min-width:160px;padding:4px;z-index:50;display:flex;flex-direction:column;}
 .lrl-sort-item{appearance:none;border:none;background:transparent;color:var(--ls-primary-text-color);text-align:left;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:13px;}
