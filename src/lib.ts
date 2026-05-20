@@ -56,6 +56,18 @@ export function setMainUIApp(appHtml: string) {
   const mainUIApp = document.getElementById('app') as HTMLDivElement
   if (mainUIApp) {
     mainUIApp.innerHTML = appHtml
+    const appDialog = document.getElementById('appDialog') as HTMLDialogElement | null
+    // Native <dialog> closes on Esc but doesn't fire any JS we wrote —
+    // the X-button handler is what otherwise calls logseq.hideMainUI().
+    // Without this listener, pressing Esc closes the dialog but leaves
+    // the (now-empty) plugin iframe mounted on top of Logseq, swallowing
+    // every click underneath and making the whole UI appear frozen.
+    // 'close' fires for every close path (Esc, programmatic .close(),
+    // backdrop click); hideMainUI() is idempotent so duplicate calls
+    // from the X button are harmless.
+    if (appDialog) {
+      appDialog.addEventListener('close', () => logseq.hideMainUI(), { once: true })
+    }
     openModal()
     logseq.showMainUI()
   }
