@@ -57,9 +57,13 @@ export const createBookPage = async (book: BookResult, fullTitle: string) => {
 
   const properties = renderBookPageProperties(view, logseq.settings?.bookPageTemplate as string)
 
-  const page = (await logseq.Editor.createPage(fullTitle, properties, {
+  // Create an empty page (no pre-block) — page-level properties would
+  // force themselves to the top, above the cover. We then append four
+  // sibling blocks in the requested order:
+  //   cover image → properties block → description quote → source link.
+  const page = (await logseq.Editor.createPage(fullTitle, {}, {
     redirect: true,
-    createFirstBlock: true,
+    createFirstBlock: false,
   })) as PageEntity | null
 
   if (!page) {
@@ -70,28 +74,32 @@ export const createBookPage = async (book: BookResult, fullTitle: string) => {
 
   await new Promise((r) => setTimeout(r, 120))
 
-  const linkBlock = renderBlock(
-    logseq.settings?.gbooksLinkTemplate as string,
-    DEFAULT_GBOOKS_LINK_TEMPLATE,
+  const coverBlock = renderBlock(
+    logseq.settings?.coverBlockTemplate as string,
+    DEFAULT_COVER_BLOCK_TEMPLATE,
     view,
   )
-  if (linkBlock) await logseq.Editor.prependBlockInPage(page.uuid, linkBlock)
+  if (coverBlock) await logseq.Editor.appendBlockInPage(fullTitle, coverBlock)
+
+  if (Object.keys(properties).length > 0) {
+    // Empty-content block carrying the rendered properties; Logseq shows
+    // it as a clean property list under the cover.
+    await logseq.Editor.appendBlockInPage(fullTitle, '', { properties })
+  }
 
   const descBlock = renderBlock(
     logseq.settings?.descriptionBlockTemplate as string,
     DEFAULT_DESCRIPTION_BLOCK_TEMPLATE,
     view,
   )
-  if (descBlock) await logseq.Editor.prependBlockInPage(page.uuid, descBlock)
+  if (descBlock) await logseq.Editor.appendBlockInPage(fullTitle, descBlock)
 
-  // Cover goes last in the prepend chain → ends up at the very top of
-  // the page, above the description.
-  const coverBlock = renderBlock(
-    logseq.settings?.coverBlockTemplate as string,
-    DEFAULT_COVER_BLOCK_TEMPLATE,
+  const linkBlock = renderBlock(
+    logseq.settings?.gbooksLinkTemplate as string,
+    DEFAULT_GBOOKS_LINK_TEMPLATE,
     view,
   )
-  if (coverBlock) await logseq.Editor.prependBlockInPage(page.uuid, coverBlock)
+  if (linkBlock) await logseq.Editor.appendBlockInPage(fullTitle, linkBlock)
 
   await ensureReadingListIndex()
 

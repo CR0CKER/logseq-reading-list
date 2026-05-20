@@ -39,9 +39,16 @@ function pathFromCover(cover: any): string {
 }
 
 async function queryBooks(): Promise<BookRow[]> {
-  const q = `[:find (pull ?p [:block/name :block/original-name :block/properties])
+  // Pull any entity (page or content block) with a `status` property,
+  // resolving the block's parent page so we can navigate to it. Pages
+  // have :block/name/:block/original-name; blocks resolve to their page
+  // via :block/page. This makes the query work for the legacy layout
+  // (page-level properties) AND the current one (properties on a
+  // dedicated content block under the cover).
+  const q = `[:find (pull ?b [:block/name :block/original-name :block/properties
+                              {:block/page [:block/name :block/original-name]}])
      :where
-     [?p :block/properties ?props]
+     [?b :block/properties ?props]
      [(get ?props :status) _]]`
   let rows: any[] = []
   try {
@@ -59,6 +66,7 @@ async function queryBooks(): Promise<BookRow[]> {
     /* ignore */
   }
 
+  const seenPages = new Set<string>()
   const books: BookRow[] = []
   for (const r of rows) {
     const p = Array.isArray(r) ? r[0] : r
@@ -66,8 +74,17 @@ async function queryBooks(): Promise<BookRow[]> {
     const props = p['properties'] || p['block/properties'] || {}
     const status = String(props.status || '').toLowerCase()
     if (!(READING_STATUSES as readonly string[]).includes(status)) continue
-    const name = p['original-name'] || p['block/original-name'] || p['name'] || p['block/name']
+    // If `p` is a page, the name lives on `p`. If `p` is a content block,
+    // `p.page` was resolved in the pull and carries the page name.
+    const pageEntity = p['page'] || p['block/page'] || p
+    const name =
+      pageEntity['original-name'] ||
+      pageEntity['block/original-name'] ||
+      pageEntity['name'] ||
+      pageEntity['block/name']
     if (!name) continue
+    if (seenPages.has(String(name))) continue
+    seenPages.add(String(name))
 
     // `cover` holds `![cover](<src>)`. http(s)/data URIs work as-is; a
     // relative ../assets/ ref must be made absolute for the plugin-
