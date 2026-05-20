@@ -37,7 +37,7 @@ export const model = {
         <div class="lrl-segments">${segments}</div>
         <form id="lrlSearchForm" autocomplete="off">
           <div class="lrl-inputrow">
-            <input type="text" id="lrlInput" placeholder="${MODES[0].placeholder}" required/>
+            <input type="text" id="lrlInput" placeholder="${MODES[0].placeholder}" required autofocus/>
             <textarea id="lrlTextarea" placeholder="One ISBN per line" style="display:none"></textarea>
             <button type="submit" class="lrl-primary">Search</button>
           </div>
@@ -102,13 +102,20 @@ function wireModal() {
     }
   })
 
-  // Defer to the next frame: <dialog>.showModal() auto-focuses its first
-  // focusable child (the close button), and Logseq's showMainUI() may
-  // adjust focus too. Wait until those settle, then claim it for the input.
-  requestAnimationFrame(() => {
+  // Belt-and-suspenders focusing. `<dialog>.showModal()` and
+  // `logseq.showMainUI()` both reach for focus on their own timelines,
+  // and one rAF isn't always late enough to win the race. Combine three
+  // layers: native `autofocus` on the input (browser preferred target
+  // on showModal), an rAF claim, and a delayed re-claim that only acts
+  // if focus has been stolen by something else.
+  const claim = () => {
+    if (document.activeElement === input) return
     input.focus()
     input.select()
-  })
+  }
+  requestAnimationFrame(claim)
+  setTimeout(claim, 60)
+  setTimeout(claim, 200)
 }
 
 /** Result cards for the search output area. */
