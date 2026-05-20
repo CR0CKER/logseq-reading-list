@@ -6,22 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reading List</title>
   <!--
-    Load Inter into the iframe's own document.
-
-    Why: @font-face declarations are scoped per-document in Chromium.
-    Logseq's main app loads Inter, but the plugin iframe is a separate
-    document and doesn't inherit those font faces, so `font-family: Inter`
-    inside the iframe falls through to system-ui. Pulling Inter from
-    Google Fonts here makes the popup actually render in Logseq's
-    default font.
-
-    preconnect to make the font CSS request fast; `display=swap` so the
-    fallback system font is used until Inter arrives (no FOIT).
+    Inter is bundled into the plugin via `@fontsource-variable/inter`,
+    imported from src/index.ts. Parcel emits the @font-face CSS and
+    copies the woff2 into dist/ so the popup uses Logseq's default
+    font fully offline — no Google Fonts request at runtime.
   -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 </head>
 
 <body>
