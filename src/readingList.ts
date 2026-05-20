@@ -202,15 +202,24 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 .lrl-readinglist{font-size:14px;width:calc(100% + 4rem);margin-right:-4rem;padding-left:1.5rem;box-sizing:border-box;}
 .lrl-bar{display:flex;align-items:center;gap:8px;margin:4px 0 14px;}
 .lrl-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1 1 auto;min-width:0;}
-.lrl-chip{appearance:none;border:1px solid var(--ls-border-color);background:var(--ls-secondary-background-color);color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;display:inline-flex;align-items:center;gap:5px;}
+/* Border derived from the text colour via color-mix so it has real
+ * contrast against the page background in light themes (where
+ * --ls-border-color often sits one step away from white and disappears
+ * on a white page). 22% of the text colour reads as a subtle grey in
+ * both light and dark modes. */
+.lrl-chip{appearance:none;border:1px solid color-mix(in srgb, var(--ls-primary-text-color) 22%, transparent);background:var(--ls-secondary-background-color);color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;display:inline-flex;align-items:center;gap:5px;}
 .lrl-chip svg{display:block;}
 .lrl-sort{position:relative !important;flex:0 0 auto;}
 .lrl-sort-menu{position:absolute !important;right:0 !important;top:calc(100% + 6px) !important;background:var(--ls-primary-background-color);border:1px solid var(--ls-border-color);border-radius:8px;box-shadow:0 6px 22px rgba(0,0,0,.28);min-width:160px;padding:4px;z-index:50;display:flex;flex-direction:column;}
 .lrl-sort-item{appearance:none;border:none;background:transparent;color:var(--ls-primary-text-color);text-align:left;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:13px;}
 .lrl-sort-item:hover{background:var(--ls-tertiary-background-color);}
-.lrl-sort-active{color:var(--ls-link-text-color);font-weight:600;}
+.lrl-sort-active{color:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));font-weight:600;}
 .lrl-chip:hover{background:var(--ls-tertiary-background-color);}
-.lrl-chip-active{background:var(--ls-link-text-color);border-color:var(--ls-link-text-color);color:#fff;}
+/* Background falls through link-text → active-primary → a hard-coded
+ * blue. Without the final fallback an empty --ls-link-text-color (some
+ * light themes don't set it) gives an empty value and the chip renders
+ * transparent — white text then disappears on the page background. */
+.lrl-chip-active{background:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));border-color:var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));color:#fff;}
 .lrl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:18px;width:100%;}
 .lrl-card{cursor:pointer;display:flex;flex-direction:column;gap:6px;}
 .lrl-cover-wrap{position:relative;aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:var(--ls-tertiary-background-color);box-shadow:0 1px 6px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;}

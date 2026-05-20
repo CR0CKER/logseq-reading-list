@@ -17,8 +17,11 @@
 
     body, .lrl-dialog, .lrl-dialog h1, .lrl-dialog h2,
     .lrl-dialog input, .lrl-dialog textarea, .lrl-dialog button {
-      font-family: var(--ls-font-family, -apple-system, BlinkMacSystemFont,
-        "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+      /* Inter is Logseq's default; keep it first so the popup looks
+         like the rest of the app even when --ls-font-family isn't
+         injected (e.g. some themes don't expose it on the root). */
+      font-family: var(--ls-font-family, Inter, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
     }
 
     div#app {
@@ -71,17 +74,21 @@
     .lrl-seg {
       appearance: none; cursor: pointer; font-size: 13px;
       padding: 6px 14px; border-radius: 8px;
-      border: 1px solid var(--ls-border-color);
+      /* Derive border from the text colour so it's visible in both
+         light and dark themes regardless of where --ls-border-color
+         falls in the palette. */
+      border: 1px solid color-mix(in srgb, var(--ls-primary-text-color) 22%, transparent);
       background: var(--ls-secondary-background-color);
       color: var(--ls-primary-text-color);
     }
     .lrl-seg:hover { background: var(--ls-tertiary-background-color); }
     .lrl-seg-active {
-      /* Use --ls-link-text-color as the accent: Logseq themes reliably
-         expose it as the visible accent, while --ls-active-primary-color
-         is often left undefined or kept as a generic blue. */
-      background: var(--ls-link-text-color);
-      border-color: var(--ls-link-text-color);
+      /* --ls-link-text-color is the accent in most themes; fall through
+         to --ls-active-primary-color and finally a hard blue so the
+         pill is never empty (which would render the white text
+         invisibly on the page background). */
+      background: var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));
+      border-color: var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));
       color: #fff;
     }
 
@@ -96,14 +103,14 @@
     }
     #lrlTextarea { min-height: 84px; resize: vertical; font-family: inherit; }
     #lrlInput:focus, #lrlTextarea:focus {
-      border-color: var(--ls-link-text-color);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--ls-link-text-color) 30%, transparent);
+      border-color: var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb));
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb)) 30%, transparent);
     }
 
     .lrl-primary {
       appearance: none; cursor: pointer; font-size: 13px; font-weight: 600;
       padding: 9px 16px; border-radius: 8px; border: none;
-      background: var(--ls-link-text-color); color: #fff;
+      background: var(--ls-link-text-color, var(--ls-active-primary-color, #2563eb)); color: #fff;
       white-space: nowrap;
     }
     .lrl-primary:hover { filter: brightness(1.08); }

@@ -53,8 +53,11 @@ const DARK_FALLBACK: Palette = {
   '--ls-selection-background-color': '#2d4a73',
 }
 
+// Logseq itself defaults to Inter; include it as the primary fallback
+// so the popup matches the rest of the UI even when the parent-document
+// read returns empty (which happens on some themes / builds).
 const SYSTEM_FONT =
-  '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
 
 function readFontFromParent(): string | null {
   try {
