@@ -149,13 +149,26 @@ const GRID_CSS = `
 .ls-block:has(> .block-main-container > .block-content-wrapper .lrl-readinglist) > .block-main-container > .block-control-wrap,
 .ls-block:has(> div > div .lrl-readinglist) > div > .block-control-wrap { display: none; }
 
-.lrl-readinglist{font-size:14px;}
+/* Logseq caps page/block width for readable prose, which squashes the
+ * grid to ~2 cards per row. Lift the cap on the chain of ancestors of
+ * our grid so it can use the full viewport width on the Reading List
+ * page; scoped via :has() so it only affects pages that host us. */
+.cp__sidebar-main-content:has(.lrl-readinglist),
+.cp__sidebar-main-content:has(.lrl-readinglist) .page,
+.cp__sidebar-main-content:has(.lrl-readinglist) .page-blocks-inner,
+.cp__sidebar-main-content:has(.lrl-readinglist) .ls-page-blocks,
+.ls-block:has(.lrl-readinglist),
+.ls-block:has(.lrl-readinglist) > .block-main-container,
+.ls-block:has(.lrl-readinglist) > .block-main-container > .block-content-wrapper,
+.ls-block:has(.lrl-readinglist) > .block-main-container > .block-content-wrapper > .block-content { max-width: none !important; width: 100% !important; }
+
+.lrl-readinglist{font-size:14px;width:100%;}
 .lrl-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 14px;flex-wrap:wrap;}
 .lrl-chips{display:flex;gap:6px;flex-wrap:wrap;}
 .lrl-chip{appearance:none;border:1px solid var(--ls-border-color);background:var(--ls-secondary-background-color);color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;}
 .lrl-chip:hover{background:var(--ls-tertiary-background-color);}
 .lrl-chip-active{background:var(--ls-active-primary-color);border-color:var(--ls-active-primary-color);color:#fff;}
-.lrl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:18px;}
+.lrl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:18px;width:100%;}
 .lrl-card{cursor:pointer;display:flex;flex-direction:column;gap:6px;}
 .lrl-cover-wrap{position:relative;aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:var(--ls-tertiary-background-color);box-shadow:0 1px 6px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;}
 .lrl-cover{width:100%;height:100%;object-fit:cover;display:block;}
