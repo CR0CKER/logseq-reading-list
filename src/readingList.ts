@@ -141,7 +141,7 @@ async function queryBooks(): Promise<BookRow[]> {
 // otherwise the .lrl-chip-active CSS rule has the same cascade fight.
 const CHIP_INLINE_STYLE =
   'border:1px solid currentColor !important;' +
-  'background:color-mix(in srgb, currentColor 6%, transparent) !important;' +
+  'background:transparent !important;' +
   'padding:4px 12px !important;' +
   'border-radius:999px !important;' +
   'display:inline-flex !important;' +
