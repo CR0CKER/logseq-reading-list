@@ -153,8 +153,11 @@ function gridHtml(books: BookRow[]): string {
   const body = filtered.length
     ? `<div class="lrl-grid">${filtered.map(card).join('')}</div>`
     : `<div class="lrl-empty">No books${currentFilter === 'all' ? ' yet' : ` marked “${STATUS_LABEL[currentFilter] || currentFilter}”`}. Use the Reading List toolbar button to add some.</div>`
+  // Positioning set inline so the CSS cascade can't push the menu's
+  // offset parent up to a larger ancestor (which was making the menu
+  // render way below the sort button).
   const menu = sortMenuOpen
-    ? `<div class="lrl-sort-menu" role="menu">
+    ? `<div class="lrl-sort-menu" role="menu" style="position:absolute;right:0;top:calc(100% + 6px);">
         <button class="lrl-sort-item${sort === 'added' ? ' lrl-sort-active' : ''}" data-on-click="rlSort" data-sort="added">Recently added</button>
         <button class="lrl-sort-item${sort === 'alpha' ? ' lrl-sort-active' : ''}" data-on-click="rlSort" data-sort="alpha">A → Z</button>
       </div>`
@@ -162,7 +165,7 @@ function gridHtml(books: BookRow[]): string {
   return `<div class="lrl-readinglist">
     <div class="lrl-bar">
       <div class="lrl-chips">${chips}</div>
-      <div class="lrl-sort">
+      <div class="lrl-sort" style="position:relative;flex:0 0 auto;">
         <button class="lrl-chip" data-on-click="rlToggleSortMenu" title="Change sort order">↕ ${sortLabel}</button>
         ${menu}
       </div>
@@ -191,7 +194,7 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 .lsp-hook-ui-slot:has(.lrl-readinglist),
 .lsp-hook-ui-slot:has(.lrl-readinglist) > [data-injected-ui] { display: block !important; width: 100% !important; max-width: none !important; }
 
-.lrl-readinglist{font-size:14px;width:calc(100% + 4rem);margin-right:-4rem;padding-left:2rem;box-sizing:border-box;}
+.lrl-readinglist{font-size:14px;width:calc(100% + 4rem);margin-right:-4rem;padding-left:1.5rem;box-sizing:border-box;}
 .lrl-bar{display:flex;align-items:center;gap:8px;margin:4px 0 14px;}
 .lrl-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1 1 auto;min-width:0;}
 .lrl-chip{appearance:none;border:1px solid var(--ls-border-color);background:var(--ls-secondary-background-color);color:var(--ls-primary-text-color);padding:4px 12px;border-radius:999px;cursor:pointer;font-size:13px;line-height:1.4;}
