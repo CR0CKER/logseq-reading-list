@@ -14,6 +14,8 @@ export interface BookResult {
   /** Remote cover URL (https), or '' if none. */
   thumbnail: string
   pageCount: string
+  /** Topic tags: Open Library `subject[]` or Google Books `categories[]`. */
+  subjects: string[]
   infoLink: string
   /** Open Library work key (e.g. "/works/OL123W") for lazy description fetch. */
   workKey?: string
@@ -91,6 +93,7 @@ async function searchGoogle(mode: SearchMode, q: string): Promise<SearchOutcome>
       isbn: extractIsbn(vi.industryIdentifiers),
       thumbnail: thumb ? thumb.replace(/^http:/, 'https:') : '',
       pageCount: vi.pageCount ? String(vi.pageCount) : '',
+      subjects: Array.isArray(vi.categories) ? vi.categories.slice(0, 5) : [],
       infoLink: vi.infoLink || '',
     }
   })
@@ -100,7 +103,7 @@ async function searchGoogle(mode: SearchMode, q: string): Promise<SearchOutcome>
 /* ---------------- Open Library ---------------- */
 
 const OL_FIELDS =
-  'key,title,author_name,first_publish_year,isbn,number_of_pages_median,cover_i,publisher'
+  'key,title,author_name,first_publish_year,isbn,number_of_pages_median,cover_i,publisher,subject'
 
 function openLibraryUrl(mode: SearchMode, value: string): string {
   const v = encodeURIComponent(value)
@@ -141,6 +144,7 @@ async function searchOpenLibrary(mode: SearchMode, q: string): Promise<SearchOut
       isbn,
       thumbnail,
       pageCount: d.number_of_pages_median ? String(d.number_of_pages_median) : '',
+      subjects: Array.isArray(d.subject) ? d.subject.slice(0, 5) : [],
       infoLink: d.key ? `https://openlibrary.org${d.key}` : '',
       workKey: typeof d.key === 'string' && d.key.startsWith('/works/') ? d.key : undefined,
     }

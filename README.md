@@ -103,7 +103,12 @@ order:
    left-aligned, full-width.
 2. **Properties block** — an empty-content block carrying the rendered
    `key:: value` lines (`status::`, `author::`, `publisher::`,
-   `isbn::`, `published::`, `pages::`, `cover::`, `tags:: [[Reading]]`).
+   `isbn::`, `published::`, `pages::`, `cover::`, `category:: #Books`,
+   and `tags::` populated with topic subjects from Open Library /
+   categories from Google Books). The convention matches
+   `sync-koreader-highlights`: `category::` marks the page type
+   (`#Books`); `tags::` is reserved for topic tags (what the book is
+   *about*) and stays editable per book.
 3. **Description** — `> Markdown blockquote` with the synopsis
    (HTML-sanitised and truncated to 500 chars).
 4. **Source link** — `[More about this book ↗](...)` to the
@@ -112,7 +117,7 @@ order:
 Properties live on a content block (not as page-level properties)
 because Logseq always renders page-level properties between the title
 and the first block, which would have pinned them above the cover.
-Backlinks from `[[Reading]]`, `[[author]]`, etc. still work the same.
+Backlinks from `[[Author]]`, topic `[[tags]]`, etc. still work the same.
 
 ---
 
@@ -169,6 +174,8 @@ author as `[[wikilink]]`), `{{publisher}}`, `{{isbn}}`, `{{published}}`
 (yyyy/MM), `{{pageCount}}`, `{{description}}` (HTML-decoded,
 truncated), `{{cover}}` (bare path or URL), `{{coverImage}}`
 (`![cover](src)` markdown), `{{coverSrc}}` (raw remote thumbnail URL),
+`{{tags}}` and `{{tagsLinked}}` (topic tags from the source's
+`subject` / `categories` fields, capped at 5),
 `{{infoLink}}`, `{{status}}`.
 
 `status` is force-injected after parsing even if a custom template

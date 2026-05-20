@@ -38,6 +38,7 @@ export const createBookPage = async (book: BookResult, fullTitle: string) => {
   const coverImage = coverSrc ? `![cover](${coverSrc})` : ''
 
   const cleanAuthors = book.authors.map((a) => sanitisePropertyValue(a)).filter(Boolean)
+  const cleanTags = book.subjects.map((s) => sanitisePropertyValue(s)).filter(Boolean)
   const view: BookView = {
     title: sanitisePropertyValue(book.title),
     fullTitle,
@@ -51,6 +52,8 @@ export const createBookPage = async (book: BookResult, fullTitle: string) => {
     cover: coverSrc,
     coverImage,
     coverSrc: book.thumbnail,
+    tags: cleanTags.join(', '),
+    tagsLinked: cleanTags.map((t) => `[[${sanitiseForWikilink(t)}]]`).join(', '),
     infoLink: book.infoLink,
     status: defaultStatus(),
   }

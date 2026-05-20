@@ -20,7 +20,8 @@ export const DEFAULT_BOOK_PAGE_TEMPLATE = `status:: {{status}}
 {{#published}}published:: {{published}}{{/published}}
 {{#pageCount}}pages:: {{pageCount}}{{/pageCount}}
 {{#cover}}cover:: {{cover}}{{/cover}}
-tags:: [[Reading]]`
+category:: #Books
+{{#tagsLinked}}tags:: {{tagsLinked}}{{/tagsLinked}}`
 
 export const DEFAULT_DESCRIPTION_BLOCK_TEMPLATE = `{{#description}}> {{description}}{{/description}}`
 
@@ -52,6 +53,10 @@ export interface BookView {
   cover: string
   /** Markdown image (`![cover](src)`) for use in a standalone block. */
   coverImage: string
+  /** Topic tags (Open Library subjects / Google Books categories), plain. */
+  tags: string
+  /** Same topics as `[[wikilinks]]`, comma-joined. */
+  tagsLinked: string
   /** Raw remote thumbnail URL — guaranteed-renderable grid fallback. */
   coverSrc: string
   infoLink: string
