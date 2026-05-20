@@ -93,10 +93,9 @@
     .lrl-seg {
       appearance: none; cursor: pointer; font-size: 13px;
       padding: 6px 14px; border-radius: 8px;
-      /* Derive border from the text colour so it's visible in both
-         light and dark themes regardless of where --ls-border-color
-         falls in the palette. */
-      border: 1px solid color-mix(in srgb, var(--ls-primary-text-color) 22%, transparent);
+      /* Logseq's canonical "subtle but actually visible" border colour;
+         readable in both light and dark themes by design. */
+      border: 1px solid var(--ls-secondary-text-color);
       background: var(--ls-secondary-background-color);
       color: var(--ls-primary-text-color);
     }
