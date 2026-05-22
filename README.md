@@ -61,10 +61,12 @@ with status filters and a sort dropdown.
   data loss or duplicated properties (see
   [Compatibility](#compatibility-with-sync-koreader-highlights)).
 
-> **Logseq Mobile is unsupported.** Logseq's mobile apps don't run
-> plugins, so the macro-rendered cover grid doesn't render there. The
-> book pages themselves still display normally — properties, cover
-> image, links, all native markdown.
+> **Logseq Mobile.** Logseq's mobile apps don't run plugins, so the
+> macro-rendered cover grid doesn't render there. The book pages
+> themselves still display normally — properties, cover image, links,
+> all native markdown. For a list you *can* see on your phone, add the
+> optional **plugin-free table** (see
+> [Optional: a mobile-friendly table](#4-optional-a-mobile-friendly-table)).
 
 ## Status
 
@@ -136,13 +138,41 @@ That macro is rendered by the plugin as:
 - **Status filter chips** (All / To read / Reading / Read).
 - **Sort dropdown** (Recently added / A → Z); choice persists across
   reloads.
+- **Cycling status badge** — hover a cover and a round badge appears in
+  its top-right corner; click it to advance the book's status
+  `to-read → reading → read → to-read` (hollow ring → half ring →
+  check, grey → amber → green). Writes straight to the `status::`
+  property and re-renders. Hidden until hover to keep the grid clean.
 - **Refresh** button to re-run the query after a manual edit.
 
 The bullet of the renderer block is hidden via scoped CSS, and the
 grid breaks out of Logseq's prose-width clamp so it uses the full
 page width and reflows on window resize.
 
-### 4. Theme-native UI everywhere
+### 4. Optional: a mobile-friendly table
+
+The cover grid above is a plugin renderer, so it only works on the
+desktop app. For a view you can also use **on Logseq Mobile**, run
+*Reading List: add mobile-friendly table* from the command palette.
+
+This is **opt-in** — nothing is added by default. The command appends a
+**native Logseq query** (a plain `{{query}}`, no plugin code) to the
+Reading List page, configured as a table of Title / Status / Author
+sorted by status. Because it's core Logseq, it renders everywhere,
+including the mobile apps. Re-running the command won't duplicate it.
+
+The query block is tagged `#reading-list-mobile`, which the plugin uses
+as a CSS hook to **hide it on the desktop** (so it doesn't duplicate the
+cover grid). On mobile the plugin isn't running, so the rule is absent
+and the table shows. The marker tag itself stays visible above the
+table on mobile; if it bothers you, hide it with one line in
+`custom.css`:
+
+```css
+.is-mobile a.page-ref[data-ref="reading-list-mobile"] { display: none; }
+```
+
+### 5. Theme-native UI everywhere
 
 The search modal and the grid both pull live theme variables from
 the running Logseq instance — colours via `--ls-*` vars, fonts via
@@ -152,7 +182,7 @@ follows `--ls-link-text-color`, which Logseq themes use as their
 canonical accent, so the modal's primary button and the grid's
 active chip turn whatever colour your theme assigns to links.
 
-### 5. Customisable templates
+### 6. Customisable templates
 
 Every output block is a Mustache template, editable in plugin
 settings:
@@ -196,6 +226,7 @@ folder. The book-plus icon appears in the toolbar.
 |---|---|
 | Add a book | Toolbar 📖+ button, or *Reading List: add a book…* |
 | Open the grid | *Reading List: open index page* |
+| Add the mobile-friendly table | *Reading List: add mobile-friendly table* |
 | Re-run the grid query | *Reading List: refresh grid* |
 | Reset templates | *Reading List: reset templates to defaults* |
 | Switch data source | Settings → **Book data source** |
@@ -295,7 +326,7 @@ omits it — the grid query depends on it.
 | `src/createPagesByISBN.ts` | Bulk-ISBN import loop |
 | `src/toAssets.ts` | `saveCoverAsset()` — fetches the cover, writes the raw `ArrayBuffer` to sandbox storage |
 | `src/render.ts` | Mustache rendering, sanitisers, `parseInlineProperties` |
-| `src/readingList.ts` | Macro renderer for `{{renderer :reading-list}}`: Datascript query, grid HTML + themed CSS, filter chips, sort dropdown, index-page seeding |
+| `src/readingList.ts` | Macro renderer for `{{renderer :reading-list}}`: Datascript query, grid HTML + themed CSS, filter chips, sort dropdown, cycling status badge, index-page seeding, and `insertMobileTable()` (the opt-in native query table) |
 | `src/theme.ts` | Pulls Logseq's live `--ls-*` colour and font variables into the plugin iframe |
 | `src/lib.ts` | Modal helpers (`openModal`, `closeModal`, `setMainUIApp`, `pageOpen`, `bookPageName`) |
 | `src/index.html` | Plugin iframe entry point + stylesheet |
@@ -303,8 +334,11 @@ omits it — the grid query depends on it.
 
 ## Known limitations
 
-- **No Logseq Mobile support** — plugins don't run on mobile; the
-  cover grid won't render there. Book pages themselves work fine.
+- **No Logseq Mobile support for the cover grid** — plugins don't run
+  on mobile, so the macro-rendered grid (and its status badges) won't
+  render there. Book pages work fine, and the optional
+  [mobile-friendly table](#4-optional-a-mobile-friendly-table) gives you
+  a plugin-free list that does show on mobile.
 - **Database graphs untested.** The plugin assumes file-based graphs.
 - **Open Library subject quality varies** — some books return a long,
   noisy mix of LoC headings and user-contributed labels. The
