@@ -1,6 +1,8 @@
 # Logseq Reading List
 
-<img width="1964" height="1702" alt="image" src="https://github.com/user-attachments/assets/8ca78265-3015-44cd-b5bf-c1d9459e3eeb" />
+<p align="center">
+  <img src="docs/screenshot.png" alt="Reading List cover grid in Logseq, with status filter chips and a sort dropdown" width="820">
+</p>
 
 
 A Logseq plugin for **adding books to your graph as rich, fully-populated
