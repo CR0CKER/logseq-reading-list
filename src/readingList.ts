@@ -17,6 +17,27 @@ interface BookRow {
   status: string
   imgSrc: string
   createdAt: number
+  /** uuid of the block carrying the `status` property (the write target). */
+  uuid: string
+}
+
+/** Click-cycle order for the status badge. */
+const NEXT_STATUS: Record<string, string> = {
+  'to-read': 'reading',
+  reading: 'read',
+  read: 'to-read',
+}
+
+/** Round status-badge glyphs (inline SVG, stroke/fill = currentColor so the
+ *  per-status `.lrl-badge-*` colour applies). Ring = to-read, half-filled
+ *  ring = reading, check = read. */
+const STATUS_ICON: Record<string, string> = {
+  'to-read':
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="8"/></svg>',
+  reading:
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" stroke="none"/></svg>',
+  read:
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
 }
 
 // Re-render targets the same slot when a filter chip is clicked.
@@ -57,7 +78,7 @@ async function queryBooks(): Promise<BookRow[]> {
   // via :block/page. This makes the query work for the legacy layout
   // (page-level properties) AND the current one (properties on a
   // dedicated content block under the cover).
-  const q = `[:find (pull ?b [:block/name :block/original-name :block/properties :block/created-at
+  const q = `[:find (pull ?b [:block/uuid :block/name :block/original-name :block/properties :block/created-at
                               {:block/page [:block/name :block/original-name :block/created-at]}])
      :where
      [?b :block/properties ?props]
@@ -120,6 +141,7 @@ async function queryBooks(): Promise<BookRow[]> {
       author: String(props.author || '').replace(/\[\[|\]\]/g, ''),
       status,
       imgSrc,
+      uuid: String(p['uuid'] || p['block/uuid'] || ''),
     })
   }
   if (getSort() === 'alpha') {
@@ -170,8 +192,12 @@ function card(b: BookRow): string {
   const img = b.imgSrc
     ? `<img class="lrl-cover" src="${esc(b.imgSrc)}" loading="lazy" alt="${esc(b.title)}" onerror="this.style.display='none';this.parentElement.classList.add('lrl-nocover')"/>`
     : ''
+  const next = NEXT_STATUS[b.status] || 'to-read'
+  const badge = b.uuid
+    ? `<button class="lrl-status-badge lrl-badge-${b.status}" data-on-click="rlCycleStatus" data-uuid="${esc(b.uuid)}" data-status="${b.status}" title="${STATUS_LABEL[b.status] || b.status} — click to mark as ${STATUS_LABEL[next] || next}">${STATUS_ICON[b.status] || ''}</button>`
+    : ''
   return `<div class="lrl-card" data-on-click="rlOpen" data-page="${esc(b.pageName)}" title="${esc(b.title)}">
-    <div class="lrl-cover-wrap lrl-status-${b.status}">${img}<span class="lrl-cover-fallback">${esc(b.title)}</span></div>
+    <div class="lrl-cover-wrap lrl-status-${b.status}">${img}<span class="lrl-cover-fallback">${esc(b.title)}</span>${badge}</div>
     <div class="lrl-meta">
       <div class="lrl-title">${esc(b.title)}</div>
       ${b.author ? `<div class="lrl-author">${esc(b.author)}</div>` : ''}
@@ -272,6 +298,18 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 .lrl-cover-fallback{display:none;padding:8px;text-align:center;font-size:12px;color:var(--ls-secondary-text-color);}
 .lrl-cover-wrap.lrl-nocover .lrl-cover-fallback{display:block;}
 .lrl-card:hover .lrl-cover-wrap{outline:2px solid var(--ls-link-text-color);}
+/* Cycling status badge, top-right of the cover. Hover-only: hidden at rest
+ * so the grid stays uncluttered, fades in while the card is hovered. Inline
+ * + .lrl-readinglist-scoped !important to survive Logseq's button reset in
+ * the main DOM. Glyph colour comes from the color property (SVG uses
+ * currentColor). */
+.lrl-readinglist .lrl-status-badge{appearance:none !important;position:absolute !important;top:6px;right:6px;width:26px;height:26px;padding:0 !important;border:none !important;border-radius:999px !important;background:rgba(0,0,0,.55) !important;display:flex !important;align-items:center;justify-content:center;cursor:pointer;z-index:2;opacity:0;pointer-events:none;transition:opacity .12s ease, transform .12s ease;box-shadow:0 1px 4px rgba(0,0,0,.35);}
+.lrl-readinglist .lrl-status-badge svg{display:block;}
+.lrl-card:hover .lrl-status-badge{opacity:1;pointer-events:auto;}
+.lrl-readinglist .lrl-status-badge:hover{transform:scale(1.12);background:rgba(0,0,0,.7) !important;}
+.lrl-readinglist .lrl-badge-to-read{color:var(--ls-secondary-text-color, #9ca3af) !important;}
+.lrl-readinglist .lrl-badge-reading{color:#f59e0b !important;}
+.lrl-readinglist .lrl-badge-read{color:#22c55e !important;}
 .lrl-meta{display:flex;flex-direction:column;gap:1px;}
 .lrl-title{font-weight:600;color:var(--ls-primary-text-color);line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .lrl-author{color:var(--ls-secondary-text-color);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -345,6 +383,19 @@ export const readingListModel = {
   rlOpen(e: any) {
     const name = e?.dataset?.page
     if (name) logseq.App.pushState('page', { name })
+  },
+  async rlCycleStatus(e: any) {
+    const uuid = e?.dataset?.uuid
+    const cur = e?.dataset?.status
+    if (!uuid) return
+    const next = NEXT_STATUS[cur] || 'to-read'
+    try {
+      await logseq.Editor.upsertBlockProperty(uuid, 'status', next)
+    } catch (err) {
+      console.error('logseq-reading-list: failed to set status', err)
+      return
+    }
+    if (lastSlot) await renderInto(lastSlot)
   },
 }
 
