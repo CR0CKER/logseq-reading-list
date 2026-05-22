@@ -329,6 +329,17 @@ async function renderInto(slot: string): Promise<void> {
 }
 
 export function registerReadingListMacro(): void {
+  // The optional mobile table (see insertMobileTable) lives on the same page
+  // as the grid. The grid is a desktop-only plugin renderer, so on desktop we
+  // hide the native table to avoid duplication. This style is only injected
+  // when the plugin runs (desktop); on the mobile app the plugin never loads,
+  // so the rule is absent and the table shows. `:has()` is already used in
+  // GRID_CSS and is available in Logseq's Electron Chromium.
+  logseq.provideStyle({
+    key: 'lrl-mobile-hide',
+    style: '.ls-block:has(a.tag[data-ref="reading-list-mobile"]){display:none !important;}',
+  })
+
   logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
     const args = payload?.arguments ?? []
     if (!args[0] || String(args[0]).trim() !== MACRO) return
@@ -424,4 +435,55 @@ export const ensureReadingListIndex = async (): Promise<void> => {
     await logseq.Editor.appendBlockInPage(pageName, SEED_INTRO)
     await logseq.Editor.appendBlockInPage(pageName, `{{renderer ${MACRO}}}`)
   }
+}
+
+/** CSS hook for the optional mobile-friendly view. */
+const MOBILE_MARKER = 'reading-list-mobile'
+
+/**
+ * Native simple query, configured as a property table. Simple queries render
+ * reliably on the Logseq mobile app (where plugins don't run); custom advanced
+ * `:view` hiccup does not and throws "invalid query" there, so we stay simple.
+ *
+ * `(property status)` matches every book block by the presence of its status
+ * property — cleaner than an `(or …)` of each value (which renders as bulky
+ * DSL chips). The `query-*` config lives in the block content (raw EDN) so the
+ * column list actually applies; passing it via insertBlock's properties option
+ * stringifies the vector and Logseq silently ignores it.
+ */
+const MOBILE_QUERY = `{{query (property status)}}
+query-table:: true
+query-properties:: [:page :status :author]
+query-sort-by:: status`
+
+/**
+ * Add a native Logseq query table to the Reading List page. Unlike the grid
+ * (a desktop-only plugin renderer), this is a plain `{{query}}` block that
+ * Logseq renders on every platform — including the mobile app, where plugins
+ * don't run. On desktop it's hidden via the `lrl-mobile-hide` style so it
+ * doesn't duplicate the grid; on mobile that style is absent and it shows.
+ *
+ * The block is tagged `#reading-list-mobile` (the CSS hook) and pre-configured
+ * with query-table columns so the user doesn't have to touch the gear menu.
+ */
+export const insertMobileTable = async (): Promise<void> => {
+  await ensureReadingListIndex()
+  const pageName = readingListPageName()
+  const tree = await logseq.Editor.getPageBlocksTree(pageName)
+  const exists = (tree || []).some((b: any) => (b.content || '').includes(`#${MOBILE_MARKER}`))
+  if (exists) {
+    await logseq.UI.showMsg('A mobile reading-list table is already on this page.', 'info')
+    return
+  }
+  const parent = await logseq.Editor.appendBlockInPage(pageName, `#${MOBILE_MARKER}`)
+  if (!parent) {
+    await logseq.UI.showMsg('Could not add the mobile table.', 'error')
+    return
+  }
+  await logseq.Editor.insertBlock(parent.uuid, MOBILE_QUERY, { sibling: false })
+  await logseq.UI.showMsg(
+    'Mobile reading-list table added. It is hidden on desktop and shows in the Logseq mobile app.',
+    'success',
+    { timeout: 6000 },
+  )
 }

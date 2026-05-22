@@ -4,6 +4,7 @@ import { logseq as PL } from '../package.json'
 import { model } from './modal'
 import {
   ensureReadingListIndex,
+  insertMobileTable,
   readingListModel,
   registerReadingListMacro,
 } from './readingList'
@@ -174,6 +175,11 @@ const main = async () => {
   logseq.App.registerCommandPalette(
     { key: 'reading-list-refresh', label: 'Reading List: refresh grid' },
     () => readingListModel.rlRefresh(),
+  )
+
+  logseq.App.registerCommandPalette(
+    { key: 'reading-list-add-mobile', label: 'Reading List: add mobile-friendly table' },
+    () => insertMobileTable(),
   )
 
   logseq.App.registerCommandPalette(
