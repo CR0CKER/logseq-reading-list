@@ -1,9 +1,9 @@
 {
   "name": "logseq-reading-list",
-  "description": "Search Google Books and build a template-based visual reading list in Logseq",
+  "description": "Add books to Logseq as rich, fully-populated pages (cover, author, ISBN, summary, tags) via Open Library or Google Books — with an optional visual reading list.",
   "author": "CR0CKER",
   "logseq": {
-    "id": "logseq-reading-list",
+    "id": "reading-list",
     "title": "Reading List",
     "icon": "./icon.svg"
   },

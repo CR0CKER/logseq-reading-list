@@ -1,11 +1,23 @@
 # Logseq Reading List
 
-A Logseq plugin that turns book discovery into a visual reading list:
-search **[Open Library](https://openlibrary.org)** or **[Google Books](https://books.google.com/)**
-by title, author, or ISBN, pick the right edition from a themed result
-list, and generate a polished book page (cover saved locally, properties,
-summary, source link) — then browse them all as a responsive cover grid
-with status filters and a sort dropdown.
+A Logseq plugin for **adding books to your graph as rich, fully-populated
+pages** — far more than just a reading list. Search
+**[Open Library](https://openlibrary.org)** or
+**[Google Books](https://books.google.com/)** by title, author, or ISBN,
+pick the right edition from a themed result list, and one click creates a
+polished book page with the metadata filled in for you:
+
+- a **cover image** saved locally to your graph,
+- **author**, **publisher**, **ISBN**, **page count**, and **publish
+  date** properties,
+- **topic tags**, a **summary/synopsis**, and a **source link**.
+
+Paste a stack of ISBNs to **bulk-import** a whole shelf at once. The core
+value is getting accurate book metadata into Logseq fast, without typing
+it by hand — and *then*, on top of that, you get an optional visual
+**reading list**: a responsive cover grid with status filters, a sort
+dropdown, and a one-click status badge (plus a plugin-free table that
+also works on mobile).
 
 > **Inspiration & credits.** This plugin builds on three prior works:
 >
