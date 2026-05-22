@@ -28,7 +28,7 @@ jobs:
       - name: Stage release contents
         run: |
           mkdir -p release/logseq-reading-list
-          cp -r dist icon.svg LICENSE README.md package.json release/logseq-reading-list/
+          cp -r dist icon.svg icon.png LICENSE README.md package.json release/logseq-reading-list/
 
       - name: Zip plugin
         run: |
