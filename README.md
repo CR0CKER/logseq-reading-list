@@ -1,5 +1,8 @@
 # Logseq Reading List
 
+<img width="1964" height="1702" alt="image" src="https://github.com/user-attachments/assets/8ca78265-3015-44cd-b5bf-c1d9459e3eeb" />
+
+
 A Logseq plugin for **adding books to your graph as rich, fully-populated
 pages** — far more than just a reading list. Search
 **[Open Library](https://openlibrary.org)** or
