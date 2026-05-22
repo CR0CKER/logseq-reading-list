@@ -87,9 +87,11 @@ also works on mobile).
 
 ## Status
 
-Public beta. Working end-to-end against the author's own graph. Not
-yet on the Logseq plugin marketplace; load the repository as an
-unpacked plugin (see [Loading in Logseq](#loading-in-logseq) below).
+Public beta. Working end-to-end against the author's own graph.
+**Submitted to the Logseq plugin marketplace** ([logseq/marketplace#820](https://github.com/logseq/marketplace/pull/820)) — pending review. Until it's
+merged, load the repository as an unpacked plugin (see
+[Loading in Logseq](#loading-in-logseq) below) or install the packaged
+zip from the [latest release](https://github.com/CR0CKER/logseq-reading-list/releases/latest).
 
 ## What it does
 
