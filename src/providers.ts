@@ -107,7 +107,10 @@ const OL_FIELDS =
 
 function openLibraryUrl(mode: SearchMode, value: string): string {
   const v = encodeURIComponent(value)
-  const param = mode === 'isbn' ? `isbn=${v}` : mode === 'author' ? `author=${v}` : `title=${v}`
+  // Title mode uses the general `q=` index, not the field-scoped `title=`:
+  // OL's title field is stricter and unreliable (often returns nothing for
+  // titles it does hold), while `q=` is the robust index its own site uses.
+  const param = mode === 'isbn' ? `isbn=${v}` : mode === 'author' ? `author=${v}` : `q=${v}`
   return `https://openlibrary.org/search.json?${param}&limit=20&fields=${OL_FIELDS}`
 }
 
