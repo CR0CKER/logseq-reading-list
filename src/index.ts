@@ -161,7 +161,13 @@ const main = async () => {
   )
 
   logseq.App.registerCommandPalette(
-    { key: 'reading-list-add', label: 'Reading List: add a book…' },
+    {
+      key: 'reading-list-add',
+      label: 'Reading List: add a book…',
+      // Default shortcut; rebindable via Settings → Keymap. `global` so it
+      // fires even when no block is focused.
+      keybinding: { binding: 'mod+shift+b', mode: 'global' },
+    },
     () => model.OpenToolbarGoogle(),
   )
 
