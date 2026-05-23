@@ -1,7 +1,7 @@
 # Logseq Reading List
 
 <p align="center">
-  <img src="docs/screenshot.png" alt="Reading List cover grid in Logseq, with status filter chips and a sort dropdown" width="820">
+  <img src="https://raw.githubusercontent.com/CR0CKER/logseq-reading-list/master/docs/screenshot.png" alt="Reading List cover grid in Logseq, with status filter chips and a sort dropdown" width="820">
 </p>
 
 
@@ -88,10 +88,9 @@ also works on mobile).
 ## Status
 
 Public beta. Working end-to-end against the author's own graph.
-**Submitted to the Logseq plugin marketplace** ([logseq/marketplace#820](https://github.com/logseq/marketplace/pull/820)) — pending review. Until it's
-merged, load the repository as an unpacked plugin (see
-[Loading in Logseq](#loading-in-logseq) below) or install the packaged
-zip from the [latest release](https://github.com/CR0CKER/logseq-reading-list/releases/latest).
+**Available in the Logseq plugin marketplace** — see
+[Loading in Logseq](#loading-in-logseq) below for the one-click install,
+or build it from source as an unpacked plugin.
 
 ## What it does
 
@@ -223,6 +222,22 @@ template — the grid query depends on it.
 
 ## Loading in Logseq
 
+### From the marketplace (recommended)
+
+In Logseq: **Settings → Plugins → Marketplace**, search for
+**"Reading List"**, and click **Install**. The book-plus icon appears
+in the toolbar.
+
+### From a release zip
+
+Download `logseq-reading-list-vX.Y.Z.zip` from the
+[latest release](https://github.com/CR0CKER/logseq-reading-list/releases/latest),
+extract it into `~/.logseq/plugins/reading-list/` (macOS:
+`~/Library/Application Support/Logseq/plugins/reading-list/`; Windows:
+`%APPDATA%\Logseq\plugins\reading-list\`), and restart Logseq.
+
+### Unpacked from source (for hacking)
+
 ```bash
 git clone https://github.com/CR0CKER/logseq-reading-list.git
 cd logseq-reading-list
@@ -231,8 +246,7 @@ npm run build      # outputs dist/
 ```
 
 In Logseq: **Settings → Advanced → Developer mode** (toggle on),
-then **Plugins → Load unpacked plugin** → select the cloned
-folder. The book-plus icon appears in the toolbar.
+then **Plugins → Load unpacked plugin** → select the cloned folder.
 
 > **Build gotcha.** If `node` on your PATH is an x86-64 `nvm` build
 > on an aarch64 machine (Apple Silicon Linux, ARM laptops), Parcel
