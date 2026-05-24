@@ -1,7 +1,7 @@
 # Logseq Reading List
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/CR0CKER/logseq-reading-list/master/docs/screenshot.png" alt="Reading List cover grid in Logseq, with status filter chips and a sort dropdown" width="820">
+<img width="1772" height="1736" alt="Screenshot From 2026-05-24 14-02-53" src="https://github.com/user-attachments/assets/39b91df3-b936-41db-8037-96fda0b2fdcd" />
 </p>
 
 
@@ -24,6 +24,9 @@ it by hand — and *then*, on top of that, you get an optional visual
 **Favorites** chip, a sort dropdown, one-click status and favorite
 badges on each cover, and favorited books pinned to the top of every
 view (plus a plugin-free table that also works on mobile).
+
+<img width="2098" height="1756" alt="Screenshot From 2026-05-24 14-06-18" src="https://github.com/user-attachments/assets/318bdc65-e4ef-4273-a1d8-34548597100f" />
+
 
 > **Inspiration & credits.** This plugin builds on three prior works:
 >
