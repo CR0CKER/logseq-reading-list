@@ -153,7 +153,8 @@ That macro is rendered by the plugin as:
 - A **responsive CSS grid** of cover cards, styled with Logseq's own
   `--ls-*` colour and font variables so it matches your active theme
   exactly. Cards link straight to the book page.
-- **Status filter chips** (All / To read / Reading / Read / ★ Favorites).
+- **Status filter chips** (All / To Read / Reading / Read / ★ Favorites),
+  each chip carrying the same icon as the per-status hover badge it filters on.
 - **Sort dropdown** (Recently added / A → Z); choice persists across
   reloads.
 - **Cycling status badge** — hover a cover and a round badge appears in
@@ -164,7 +165,7 @@ That macro is rendered by the plugin as:
 - **Favorite star** — top-left of each cover. Click to toggle
   `favorite:: true` on the book page; gold-filled when set, an outlined
   star appears on hover when unset. Favorited books are **pinned to the
-  top of every filter view** (All / To read / Reading / Read), so the
+  top of every filter view** (All / To Read / Reading / Read), so the
   books you care about always lead. The dedicated **★ Favorites** chip
   narrows the grid to just favorites. The `favorite:: true` property is
   also the contract honoured by `sync-koreader-highlights`, which can

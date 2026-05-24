@@ -5,7 +5,7 @@ import { READING_STATUSES } from './render'
 
 const MACRO = ':reading-list'
 const STATUS_LABEL: Record<string, string> = {
-  'to-read': 'To read',
+  'to-read': 'To Read',
   reading: 'Reading',
   read: 'Read',
 }
@@ -210,10 +210,18 @@ function chip(status: string, active: boolean): string {
     status === 'all'
       ? 'All'
       : status === FAVORITE_FILTER
-        ? '★ Favorites'
+        ? 'Favorites'
         : STATUS_LABEL[status] || status
+  // Match each chip's glyph to the per-status hover badge (and the star
+  // to the favorite badge), so the chip reads as a legend for the icon
+  // sitting on the cover. Icons inherit currentColor, which flips to
+  // white when the chip is active — same as the chip text.
+  const icon =
+    status === FAVORITE_FILTER
+      ? STAR_FILLED
+      : STATUS_ICON[status] || ''
   const style = active ? CHIP_ACTIVE_INLINE_STYLE : CHIP_INLINE_STYLE
-  return `<button class="lrl-chip${active ? ' lrl-chip-active' : ''}" style="${style}" data-on-click="rlFilter" data-status="${status}">${label}</button>`
+  return `<button class="lrl-chip${active ? ' lrl-chip-active' : ''}" style="${style}" data-on-click="rlFilter" data-status="${status}">${icon}${label}</button>`
 }
 
 function card(b: BookRow): string {
