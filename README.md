@@ -1,7 +1,7 @@
 # Logseq Reading List
 
 <p align="center">
-<img width="1772" height="1736" alt="Screenshot From 2026-05-24 14-02-53" src="https://github.com/user-attachments/assets/39b91df3-b936-41db-8037-96fda0b2fdcd" />
+  <img src="https://raw.githubusercontent.com/CR0CKER/logseq-reading-list/master/docs/grid-overview.png" alt="Reading List cover grid in Logseq — chips for All / To Read / Reading / Read / ★ Favorites, each carrying its status icon; gold stars pin favorited books to the top; sort dropdown and refresh button on the right" width="820">
 </p>
 
 
@@ -25,7 +25,9 @@ it by hand — and *then*, on top of that, you get an optional visual
 badges on each cover, and favorited books pinned to the top of every
 view (plus a plugin-free table that also works on mobile).
 
-<img width="2098" height="1756" alt="Screenshot From 2026-05-24 14-06-18" src="https://github.com/user-attachments/assets/318bdc65-e4ef-4273-a1d8-34548597100f" />
+<p align="center">
+  <img src="https://raw.githubusercontent.com/CR0CKER/logseq-reading-list/master/docs/book-page.png" alt="A per-book page created by Reading List — local cover image, then properties block with status / author / full-title / summary / tags / category / cover, and a 'More about this book' source link" width="820">
+</p>
 
 
 > **Inspiration & credits.** This plugin builds on three prior works:
