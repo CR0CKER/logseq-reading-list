@@ -20,9 +20,10 @@ polished book page with the metadata filled in for you:
 Paste a stack of ISBNs to **bulk-import** a whole shelf at once. The core
 value is getting accurate book metadata into Logseq fast, without typing
 it by hand — and *then*, on top of that, you get an optional visual
-**reading list**: a responsive cover grid with status filters, a sort
-dropdown, and a one-click status badge (plus a plugin-free table that
-also works on mobile).
+**reading list**: a responsive cover grid with status filters and a
+**Favorites** chip, a sort dropdown, one-click status and favorite
+badges on each cover, and favorited books pinned to the top of every
+view (plus a plugin-free table that also works on mobile).
 
 > **Inspiration & credits.** This plugin builds on three prior works:
 >
@@ -325,6 +326,12 @@ The shared property vocabulary (`category:: #Books`, `summary::`,
 `tags::`, `full-title::`, `author::`) is what makes this work: both
 plugins write the same key names and treat them as the same concept.
 
+**`favorite:: true`** is a future addition to that contract. Reading
+List writes it when you click the star on a cover; `sync-koreader-highlights`
+will (in a future release) populate it for books in KOReader's built-in
+**Favorites** collection. Either plugin can be the writer — the other
+just reads whatever's there.
+
 ## Settings reference
 
 | Key | Default | What it does |
@@ -368,7 +375,7 @@ omits it — the grid query depends on it.
 | `src/createPagesByISBN.ts` | Bulk-ISBN import loop |
 | `src/toAssets.ts` | `saveCoverAsset()` — fetches the cover, writes the raw `ArrayBuffer` to sandbox storage |
 | `src/render.ts` | Mustache rendering, sanitisers, `parseInlineProperties` |
-| `src/readingList.ts` | Macro renderer for `{{renderer :reading-list}}`: Datascript query, grid HTML + themed CSS, filter chips, sort dropdown, cycling status badge, index-page seeding, and `insertMobileTable()` (the opt-in native query table) |
+| `src/readingList.ts` | Macro renderer for `{{renderer :reading-list}}`: Datascript query, grid HTML + themed CSS, icon-bearing filter chips (incl. ★ Favorites), sort dropdown, hover-cycling status badge, toggle-favorite star badge with favorites-pinned-on-top sort, index-page seeding, and `insertMobileTable()` (the opt-in native query table) |
 | `src/theme.ts` | Pulls Logseq's live `--ls-*` colour and font variables into the plugin iframe |
 | `src/lib.ts` | Modal helpers (`openModal`, `closeModal`, `setMainUIApp`, `pageOpen`, `bookPageName`) |
 | `src/index.html` | Plugin iframe entry point + stylesheet |
