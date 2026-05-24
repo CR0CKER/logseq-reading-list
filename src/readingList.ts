@@ -10,11 +10,16 @@ const STATUS_LABEL: Record<string, string> = {
   read: 'Read',
 }
 
+/** Filter chip sentinel for the favorites-only view. Kept distinct from
+ *  READING_STATUSES so `currentFilter` stays a single string. */
+const FAVORITE_FILTER = 'favorite'
+
 interface BookRow {
   pageName: string
   title: string
   author: string
   status: string
+  favorite: boolean
   imgSrc: string
   createdAt: number
   /** uuid of the block carrying the `status` property (the write target). */
@@ -39,6 +44,13 @@ const STATUS_ICON: Record<string, string> = {
   read:
     '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
 }
+
+/** Filled star when favorited, outlined star otherwise. Both use currentColor
+ *  so .lrl-fav-on / .lrl-fav-off can theme them. */
+const STAR_FILLED =
+  '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>'
+const STAR_OUTLINE =
+  '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>'
 
 // Re-render targets the same slot when a filter chip is clicked.
 let lastSlot: string | null = null
@@ -107,6 +119,10 @@ async function queryBooks(): Promise<BookRow[]> {
     const props = p['properties'] || p['block/properties'] || {}
     const status = String(props.status || '').toLowerCase()
     if (!(READING_STATUSES as readonly string[]).includes(status)) continue
+    const favRaw = props.favorite
+    const favorite =
+      favRaw === true ||
+      (typeof favRaw === 'string' && /^(true|yes)$/i.test(favRaw.trim()))
     // If `p` is a page, the name lives on `p`. If `p` is a content block,
     // `p.page` was resolved in the pull and carries the page name.
     const pageEntity = p['page'] || p['block/page'] || p
@@ -140,15 +156,22 @@ async function queryBooks(): Promise<BookRow[]> {
       title: String(name).replace(/^.*\//, ''),
       author: String(props.author || '').replace(/\[\[|\]\]/g, ''),
       status,
+      favorite,
       imgSrc,
       uuid: String(p['uuid'] || p['block/uuid'] || ''),
     })
   }
-  if (getSort() === 'alpha') {
-    books.sort((a, b) => a.title.localeCompare(b.title))
-  } else {
-    books.sort((a, b) => b.createdAt - a.createdAt || a.title.localeCompare(b.title))
-  }
+  // Favorites pin to the top across every filter view (the Favorites
+  // filter itself is all-favorites so the rule is a no-op there).
+  const byMode =
+    getSort() === 'alpha'
+      ? (a: BookRow, b: BookRow) => a.title.localeCompare(b.title)
+      : (a: BookRow, b: BookRow) =>
+          b.createdAt - a.createdAt || a.title.localeCompare(b.title)
+  books.sort((a, b) => {
+    if (a.favorite !== b.favorite) return a.favorite ? -1 : 1
+    return byMode(a, b)
+  })
   return books
 }
 
@@ -183,7 +206,12 @@ const CHIP_ACTIVE_INLINE_STYLE =
   'cursor:pointer !important;'
 
 function chip(status: string, active: boolean): string {
-  const label = status === 'all' ? 'All' : STATUS_LABEL[status] || status
+  const label =
+    status === 'all'
+      ? 'All'
+      : status === FAVORITE_FILTER
+        ? '★ Favorites'
+        : STATUS_LABEL[status] || status
   const style = active ? CHIP_ACTIVE_INLINE_STYLE : CHIP_INLINE_STYLE
   return `<button class="lrl-chip${active ? ' lrl-chip-active' : ''}" style="${style}" data-on-click="rlFilter" data-status="${status}">${label}</button>`
 }
@@ -196,8 +224,11 @@ function card(b: BookRow): string {
   const badge = b.uuid
     ? `<button class="lrl-status-badge lrl-badge-${b.status}" data-on-click="rlCycleStatus" data-uuid="${esc(b.uuid)}" data-status="${b.status}" title="${STATUS_LABEL[b.status] || b.status} — click to mark as ${STATUS_LABEL[next] || next}">${STATUS_ICON[b.status] || ''}</button>`
     : ''
+  const favBadge = b.uuid
+    ? `<button class="lrl-fav-badge ${b.favorite ? 'lrl-fav-on' : 'lrl-fav-off'}" data-on-click="rlToggleFavorite" data-uuid="${esc(b.uuid)}" data-favorite="${b.favorite}" title="${b.favorite ? 'Favorite — click to unstar' : 'Click to mark as favorite'}">${b.favorite ? STAR_FILLED : STAR_OUTLINE}</button>`
+    : ''
   return `<div class="lrl-card" data-on-click="rlOpen" data-page="${esc(b.pageName)}" title="${esc(b.title)}">
-    <div class="lrl-cover-wrap lrl-status-${b.status}">${img}<span class="lrl-cover-fallback">${esc(b.title)}</span>${badge}</div>
+    <div class="lrl-cover-wrap lrl-status-${b.status}">${img}<span class="lrl-cover-fallback">${esc(b.title)}</span>${favBadge}${badge}</div>
     <div class="lrl-meta">
       <div class="lrl-title">${esc(b.title)}</div>
       ${b.author ? `<div class="lrl-author">${esc(b.author)}</div>` : ''}
@@ -206,15 +237,26 @@ function card(b: BookRow): string {
 }
 
 function gridHtml(books: BookRow[]): string {
-  const filtered = currentFilter === 'all' ? books : books.filter((b) => b.status === currentFilter)
-  const chips = ['all', ...READING_STATUSES]
+  const filtered =
+    currentFilter === 'all'
+      ? books
+      : currentFilter === FAVORITE_FILTER
+        ? books.filter((b) => b.favorite)
+        : books.filter((b) => b.status === currentFilter)
+  const chips = ['all', ...READING_STATUSES, FAVORITE_FILTER]
     .map((s) => chip(s, s === currentFilter))
     .join('')
   const sort = getSort()
   const sortLabel = sort === 'alpha' ? 'A → Z' : 'Recently added'
+  const emptyHint =
+    currentFilter === 'all'
+      ? ' yet'
+      : currentFilter === FAVORITE_FILTER
+        ? ' marked as favorite'
+        : ` marked “${STATUS_LABEL[currentFilter] || currentFilter}”`
   const body = filtered.length
     ? `<div class="lrl-grid">${filtered.map(card).join('')}</div>`
-    : `<div class="lrl-empty">No books${currentFilter === 'all' ? ' yet' : ` marked “${STATUS_LABEL[currentFilter] || currentFilter}”`}. Use the Reading List toolbar button to add some.</div>`
+    : `<div class="lrl-empty">No books${emptyHint}. Use the Reading List toolbar button to add some.</div>`
   // Position the menu with viewport-fixed coordinates captured from the
   // button when the menu opens. This sidesteps every offset-parent /
   // cascade issue we hit with position:absolute.
@@ -310,6 +352,15 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 .lrl-readinglist .lrl-badge-to-read{color:var(--ls-secondary-text-color, #9ca3af) !important;}
 .lrl-readinglist .lrl-badge-reading{color:#f59e0b !important;}
 .lrl-readinglist .lrl-badge-read{color:#22c55e !important;}
+/* Favorite star, top-left of the cover. Always visible when favorited (state
+ * indicator); hover-only when not (editor affordance, mirrors status badge).
+ * Inline + .lrl-readinglist-scoped !important to survive Logseq's button reset. */
+.lrl-readinglist .lrl-fav-badge{appearance:none !important;position:absolute !important;top:6px;left:6px;width:26px;height:26px;padding:0 !important;border:none !important;border-radius:999px !important;background:rgba(0,0,0,.55) !important;display:flex !important;align-items:center;justify-content:center;cursor:pointer;z-index:2;transition:opacity .12s ease, transform .12s ease;box-shadow:0 1px 4px rgba(0,0,0,.35);}
+.lrl-readinglist .lrl-fav-badge svg{display:block;}
+.lrl-readinglist .lrl-fav-on{opacity:1;color:#f5b400 !important;}
+.lrl-readinglist .lrl-fav-off{opacity:0;pointer-events:none;color:#e5e7eb !important;}
+.lrl-card:hover .lrl-fav-off{opacity:1;pointer-events:auto;}
+.lrl-readinglist .lrl-fav-badge:hover{transform:scale(1.12);background:rgba(0,0,0,.7) !important;}
 .lrl-meta{display:flex;flex-direction:column;gap:1px;}
 .lrl-title{font-weight:600;color:var(--ls-primary-text-color);line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .lrl-author{color:var(--ls-secondary-text-color);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -344,7 +395,11 @@ export function registerReadingListMacro(): void {
     const args = payload?.arguments ?? []
     if (!args[0] || String(args[0]).trim() !== MACRO) return
     const arg = (args[1] || '').toString().trim().toLowerCase()
-    if ((READING_STATUSES as readonly string[]).includes(arg) || arg === 'all') {
+    if (
+      (READING_STATUSES as readonly string[]).includes(arg) ||
+      arg === 'all' ||
+      arg === FAVORITE_FILTER
+    ) {
       currentFilter = arg
     }
     await renderInto(slot)
@@ -404,6 +459,22 @@ export const readingListModel = {
       await logseq.Editor.upsertBlockProperty(uuid, 'status', next)
     } catch (err) {
       console.error('logseq-reading-list: failed to set status', err)
+      return
+    }
+    if (lastSlot) await renderInto(lastSlot)
+  },
+  async rlToggleFavorite(e: any) {
+    const uuid = e?.dataset?.uuid
+    if (!uuid) return
+    const isFav = e?.dataset?.favorite === 'true'
+    try {
+      if (isFav) {
+        await logseq.Editor.removeBlockProperty(uuid, 'favorite')
+      } else {
+        await logseq.Editor.upsertBlockProperty(uuid, 'favorite', true)
+      }
+    } catch (err) {
+      console.error('logseq-reading-list: failed to toggle favorite', err)
       return
     }
     if (lastSlot) await renderInto(lastSlot)
