@@ -395,6 +395,7 @@ omits it — the grid query depends on it.
 | `src/toAssets.ts` | `saveCoverAsset()` — fetches the cover, writes the raw `ArrayBuffer` to sandbox storage |
 | `src/render.ts` | Mustache rendering, sanitisers, `parseInlineProperties` |
 | `src/html.ts` | `escapeHtml()` — the single, complete HTML-escaper shared by the modal and grid renderers (neutralises XSS payloads in third-party book data before they reach `innerHTML`) |
+| `src/net.ts` | `fetchWithTimeout()` — every outbound `fetch` goes through this (AbortController timeout) so a hung connection can't freeze the UI; `isAbortError()` |
 | `src/readingList.ts` | Macro renderer for `{{renderer :reading-list}}`: Datascript query, grid HTML + themed CSS, icon-bearing filter chips (incl. ★ Favorites), sort dropdown, hover-cycling status badge, toggle-favorite star badge with favorites-pinned-on-top sort, index-page seeding, and `insertMobileTable()` (the opt-in native query table) |
 | `src/theme.ts` | Pulls Logseq's live `--ls-*` colour and font variables into the plugin iframe |
 | `src/lib.ts` | Modal helpers (`openModal`, `closeModal`, `setMainUIApp`, `pageOpen`, `bookPageName`) |

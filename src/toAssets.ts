@@ -1,5 +1,6 @@
 import { IAsyncStorage } from '@logseq/libs/dist/modules/LSPlugin.Storage'
 import '@logseq/libs'
+import { fetchWithTimeout } from './net'
 
 /**
  * Download a cover into the plugin's sandbox asset storage and return the
@@ -25,7 +26,10 @@ export const saveCoverAsset = async (imgUrl: string, baseName: string): Promise<
   }
 
   try {
-    const res = await fetch(imgUrl.replace(/^http:/, 'https:'))
+    // Cover images are small but get a slightly larger budget than the
+    // JSON API calls. On timeout this throws, the catch returns '', and
+    // the caller falls back to the remote URL.
+    const res = await fetchWithTimeout(imgUrl.replace(/^http:/, 'https:'), 15_000)
     if (!res.ok) {
       console.warn('logseq-reading-list: cover fetch failed', res.status, imgUrl)
       return ''

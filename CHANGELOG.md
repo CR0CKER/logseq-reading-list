@@ -38,6 +38,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Every outbound `fetch` (Open Library / Google Books search, description
+  lookup, cover download) now runs through `fetchWithTimeout` (`src/net.ts`)
+  with an `AbortController` budget — 10s for the JSON APIs, 15s for the cover
+  image. A hung connection now surfaces a "timed out" error (or falls back to
+  the remote cover URL) instead of leaving the modal stuck on "Searching…".
+  (audit finding **M4**)
 - `tsconfig.json`: enabled `strict` (was `strict: false` with
   `noImplicitAny: false`); fixed the resulting type errors in `index.ts`,
   `search.ts`, and `createPagesByISBN.ts`. (audit finding **M1**)
