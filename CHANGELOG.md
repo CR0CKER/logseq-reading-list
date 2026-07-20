@@ -41,6 +41,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `tsconfig.json`: enabled `strict` (was `strict: false` with
   `noImplicitAny: false`); fixed the resulting type errors in `index.ts`,
   `search.ts`, and `createPagesByISBN.ts`. (audit finding **M1**)
+- Protected `master` with a repository ruleset: pull-request-only (squash,
+  linear history), all five CI checks required before merge, direct pushes and
+  force-pushes rejected (admins included). Documented in the README
+  *Contributing* section. (audit finding **M3**)
 
 ### Known issues
 

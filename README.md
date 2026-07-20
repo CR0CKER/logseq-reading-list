@@ -265,6 +265,15 @@ npm test           # vitest unit tests
 CI (`.github/workflows/ci.yml`) runs `build`, `typecheck`, `test`, a
 gitleaks secret scan, and `npm audit` (shipped deps) on every push and PR.
 
+### Contributing
+
+`master` is protected by a repository ruleset: changes land via **pull
+request** (squash-merge only, linear history), and all five CI checks —
+`build`, `typecheck`, `test`, `secret-scan`, `audit` — are **required** and
+must be green before merge. Direct pushes to `master` are rejected, including
+for admins. Approvals are set to 0, so a solo maintainer self-merges once the
+checks pass; flip that to 1 the day a second contributor joins.
+
 In Logseq: **Settings → Advanced → Developer mode** (toggle on),
 then **Plugins → Load unpacked plugin** → select the cloned folder.
 
