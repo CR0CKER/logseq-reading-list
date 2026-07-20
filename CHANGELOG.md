@@ -42,6 +42,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Removed the Google Fonts `<link>` from the search modal — the plugin no
+  longer fetches Inter from `fonts.googleapis.com`/`gstatic.com` on every
+  modal open. The font chain now resolves to the user's Logseq theme font,
+  then a locally-installed Inter, then `system-ui`. This drops a per-open
+  data leak to Google and an external dependency / CSP surface from an
+  otherwise offline, local-first UI. (audit finding **L1**)
 - Every outbound `fetch` (Open Library / Google Books search, description
   lookup, cover download) now runs through `fetchWithTimeout` (`src/net.ts`)
   with an `AbortController` budget — 10s for the JSON APIs, 15s for the cover

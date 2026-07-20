@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reading List</title>
   <!--
-    Font strategy:
+    Font strategy (no network — this is a local-first plugin):
       1. src/theme.ts reads the parent doc's --ls-font-family, strips
          generic-family terminators (serif/sans-serif/system-ui/…) so
          they don't short-circuit our fallback, and injects the cleaned
@@ -14,15 +14,12 @@
       2. The CSS rule below resolves `var(--ls-font-family, …)` to:
             <theme's named fonts>, Inter, system-ui, -apple-system, …
          So if the theme's font is locally installed it wins; otherwise
-         the chain falls through to Inter; otherwise to the OS UI font.
-      3. Inter is pulled from Google Fonts so step 2's fallback actually
-         renders — @font-face is document-scoped in Chromium and the
-         iframe doesn't inherit Logseq's main-doc font faces.
+         the chain falls through to a locally-installed Inter, and finally
+         to the OS UI font (system-ui) — which is a fine, native-feeling
+         default. We deliberately do NOT fetch Inter from Google Fonts:
+         that would leak every modal-open to Google and add an external
+         dependency + CSP surface to an otherwise offline UI.
   -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 </head>
 
 <body>
