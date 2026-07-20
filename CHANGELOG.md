@@ -6,6 +6,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Bumped `vitest` `^2.1.9` → `^4.1.10` (dev-only, breaking major). Clears the
+  last remaining `npm audit` advisories — they were in the `vitest`/`vite`
+  test toolchain (never shipped in the plugin). Full `npm audit`, including dev
+  dependencies, now reports **0 vulnerabilities**. All 44 tests pass unchanged
+  on the new major (the suite exercises the `vitest` API, so it doubles as the
+  upgrade contract test). Resolves the v0.4.0 *Known issues* note.
+
 ## [0.4.0] - 2026-07-20
 
 ### Security
