@@ -25,8 +25,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `src/html.ts` — a single, complete `escapeHtml()` (escapes `& < > " '`)
   shared by the search modal and the grid renderer, replacing two divergent
   local escapers (one of which omitted `>`). (audit finding **L4**)
-- Test suite: `vitest` with a regression test proving the XSS payload is
-  neutralised (`npm test`). (audit finding **M2**, partial)
+- Test suite: `vitest` (`npm test`). Covers the H1 XSS-escaper regression plus
+  the `render.ts` pure parser/sanitiser functions — `sanitisePageName`,
+  `normalisePublished`, `extractIsbn`, `truncate`, `sanitisePropertyValue`
+  (entity-decode / tag-strip / `::` neutralisation), `sanitiseForWikilink`,
+  and template rendering (`renderBookPageProperties` status-injection,
+  `renderBlock`), with positive and negative regex cases. (audit findings
+  **H1**, **M2**)
 - CI gates in `.github/workflows/ci.yml`: `typecheck` (strict `tsc --noEmit`),
   `test`, a `gitleaks` secret scan (SHA-pinned action), and an enforcing
   `npm audit` job. (audit finding **M1**)
