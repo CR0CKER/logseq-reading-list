@@ -71,12 +71,11 @@ jobs:
 
   audit:
     runs-on: ubuntu-latest
-    # ADVISORY, not yet enforced. `npm audit` currently reports known
-    # advisories in @logseq/libs@0.0.17 (transitive dompurify / lodash-es)
-    # — audit finding H2, deferred to a separate SDK-bump PR. Once that
-    # lands and this is green, remove `continue-on-error` to make the audit
-    # a hard gate that blocks any newly-introduced vulnerable dependency.
-    continue-on-error: true
+    # Enforcing gate: fails the build on any advisory in a shipped
+    # dependency. Scoped to --omit=dev because dev-only tooling (parcel,
+    # vitest) never reaches the published plugin. Transitive advisories in
+    # @logseq/libs's pinned dompurify / lodash-es are held at patched,
+    # same-major versions via the `overrides` block in package.json.
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
