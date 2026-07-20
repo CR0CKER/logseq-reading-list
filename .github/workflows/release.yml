@@ -36,7 +36,9 @@ jobs:
           zip -r "../logseq-reading-list-${GITHUB_REF_NAME}.zip" logseq-reading-list
 
       - name: Attach zip to GitHub Release
-        uses: softprops/action-gh-release@v2
+        # Third-party action pinned by commit SHA (supply-chain integrity),
+        # not a mutable tag. SHA is v2.6.2; Dependabot proposes bumps.
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           files: logseq-reading-list-*.zip
           fail_on_unmatched_files: true
