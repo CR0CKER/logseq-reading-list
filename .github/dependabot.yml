@@ -9,6 +9,12 @@ updates:
     groups:
       npm:
         patterns: ["*"]
+    ignore:
+      # TypeScript 7 is the new native-compiler line — a deliberate major
+      # migration that currently fails `tsc --noEmit`. Hold at 5.x majors
+      # until we migrate on purpose; minor/patch TS bumps still flow.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions used by the CI and release workflows. Keeps the
   # SHA-pinned third-party action (softprops/action-gh-release,
