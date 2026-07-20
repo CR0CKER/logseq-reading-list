@@ -258,7 +258,12 @@ git clone https://github.com/CR0CKER/logseq-reading-list.git
 cd logseq-reading-list
 npm install
 npm run build      # outputs dist/
+npm run typecheck  # tsc --noEmit (strict) — Parcel does not type-check
+npm test           # vitest unit tests
 ```
+
+CI (`.github/workflows/ci.yml`) runs `build`, `typecheck`, `test`, a
+gitleaks secret scan, and an advisory `npm audit` on every push and PR.
 
 In Logseq: **Settings → Advanced → Developer mode** (toggle on),
 then **Plugins → Load unpacked plugin** → select the cloned folder.
@@ -380,6 +385,7 @@ omits it — the grid query depends on it.
 | `src/createPagesByISBN.ts` | Bulk-ISBN import loop |
 | `src/toAssets.ts` | `saveCoverAsset()` — fetches the cover, writes the raw `ArrayBuffer` to sandbox storage |
 | `src/render.ts` | Mustache rendering, sanitisers, `parseInlineProperties` |
+| `src/html.ts` | `escapeHtml()` — the single, complete HTML-escaper shared by the modal and grid renderers (neutralises XSS payloads in third-party book data before they reach `innerHTML`) |
 | `src/readingList.ts` | Macro renderer for `{{renderer :reading-list}}`: Datascript query, grid HTML + themed CSS, icon-bearing filter chips (incl. ★ Favorites), sort dropdown, hover-cycling status badge, toggle-favorite star badge with favorites-pinned-on-top sort, index-page seeding, and `insertMobileTable()` (the opt-in native query table) |
 | `src/theme.ts` | Pulls Logseq's live `--ls-*` colour and font variables into the plugin iframe |
 | `src/lib.ts` | Modal helpers (`openModal`, `closeModal`, `setMainUIApp`, `pageOpen`, `bookPageName`) |

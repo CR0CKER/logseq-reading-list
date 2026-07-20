@@ -130,7 +130,7 @@ const TEMPLATE_DEFAULTS: Record<string, string> = {
  * template textareas show up blank. Fill any missing/blank one.
  */
 function backfillTemplateDefaults(): void {
-  const s = logseq.settings ?? {}
+  const s: Record<string, unknown> = logseq.settings ?? {}
   const updates: Record<string, string> = {}
   for (const [key, def] of Object.entries(TEMPLATE_DEFAULTS)) {
     if (!(s[key] as string | undefined)?.trim()) updates[key] = def

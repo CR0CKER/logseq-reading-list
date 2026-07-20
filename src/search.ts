@@ -1,6 +1,7 @@
 import { closeModal, openModal } from './lib'
 import { createTable, attachResultHandlers } from './modal'
 import { SearchMode, searchBooks } from './providers'
+import { escapeHtml } from './html'
 
 const MODE_MAP: Record<string, SearchMode> = {
   searchTitle: 'title',
@@ -21,8 +22,9 @@ export const search = async (form: HTMLFormElement) => {
   const outcome = await searchBooks(mode, inputValue)
 
   if (!outcome.ok) {
-    if (output) output.innerHTML = `<p class="lrl-status lrl-error">${outcome.error}</p>`
-    logseq.UI.showMsg(outcome.error, 'error')
+    const errorMsg = outcome.error || 'Search failed.'
+    if (output) output.innerHTML = `<p class="lrl-status lrl-error">${escapeHtml(errorMsg)}</p>`
+    logseq.UI.showMsg(errorMsg, 'error')
     console.error('logseq-reading-list: search error', outcome)
     return
   }
