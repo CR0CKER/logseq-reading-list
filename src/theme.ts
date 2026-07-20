@@ -53,11 +53,11 @@ const DARK_FALLBACK: Palette = {
   '--ls-selection-background-color': '#2d4a73',
 }
 
-// Tail of every injected font-family chain. Inter is NOT bundled or
-// fetched (see index.html — no Google Fonts link, to keep the plugin
-// offline): it renders only if the user has Inter installed as a system
-// font. Otherwise the chain falls through to system-ui (the OS UI font);
-// sans-serif is the never-fails terminator.
+// Tail of every injected font-family chain. Inter is self-hosted as an
+// inline base64 @font-face in index.html (fully offline — no Google Fonts
+// fetch), so it renders in the modal iframe when the theme's own font
+// isn't available on the OS. system-ui (the OS UI font) is the next
+// fallback; sans-serif is the never-fails terminator.
 const SYSTEM_FONT =
   'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
 

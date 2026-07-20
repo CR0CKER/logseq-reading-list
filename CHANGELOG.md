@@ -42,12 +42,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- Removed the Google Fonts `<link>` from the search modal — the plugin no
-  longer fetches Inter from `fonts.googleapis.com`/`gstatic.com` on every
-  modal open. The font chain now resolves to the user's Logseq theme font,
-  then a locally-installed Inter, then `system-ui`. This drops a per-open
-  data leak to Google and an external dependency / CSP surface from an
-  otherwise offline, local-first UI. (audit finding **L1**)
+- Self-hosted the modal UI font: removed the Google Fonts `<link>` and
+  inlined Inter (static latin weights 400/600/700, from `@fontsource/inter`)
+  as a base64 `@font-face` in `index.html`. The modal no longer fetches from
+  `fonts.googleapis.com`/`gstatic.com` on open — dropping a per-open data leak
+  to Google and an external dependency / CSP surface — yet still renders Inter
+  fully offline. A base64 data-URI face (self-contained, no URL to resolve, no
+  JS import) is a deliberately different mechanism from the earlier
+  `@fontsource-variable/inter` bundle that destabilised the iframe and was
+  reverted; verified loading + rendering in headless Chromium (Logseq's
+  engine), including inside a parent-less-face iframe. (audit finding **L1**)
 - Every outbound `fetch` (Open Library / Google Books search, description
   lookup, cover download) now runs through `fetchWithTimeout` (`src/net.ts`)
   with an `AbortController` budget — 10s for the JSON APIs, 15s for the cover
