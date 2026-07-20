@@ -14,7 +14,9 @@
   "effect": true,
   "scripts": {
     "dev": "parcel src/index.html --public-url ./ --no-cache",
-    "build": "parcel build --no-source-maps src/index.html --public-url ./"
+    "build": "parcel build --no-source-maps src/index.html --public-url ./",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "license": "MIT",
   "dependencies": {
@@ -24,6 +26,7 @@
   "devDependencies": {
     "@types/mustache": "^4.2.5",
     "parcel": "^2.12.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vitest": "^2.1.9"
   }
 }

@@ -5,6 +5,7 @@ import { bookPageName, setCloseButton, setMainUIApp, setReadingPageButton } from
 import { search } from './search'
 import { BookResult, currentSource } from './providers'
 import { applyTheme } from './theme'
+import { escapeHtml } from './html'
 
 const MODES: { id: string; label: string; placeholder: string }[] = [
   { id: 'searchTitle', label: 'Title', placeholder: 'Book title or keywords…' },
@@ -12,10 +13,6 @@ const MODES: { id: string; label: string; placeholder: string }[] = [
   { id: 'searchISBN', label: 'ISBN', placeholder: '10- or 13-digit ISBN' },
   { id: 'inputISBN', label: 'Bulk ISBN', placeholder: 'One ISBN per line' },
 ]
-
-function escAttr(s: any): string {
-  return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
-}
 
 /* on click open_toolbar — registered via logseq.provideModel */
 export const model = {
@@ -123,10 +120,10 @@ export const createTable = (results: BookResult[]): string => {
   let cards = ''
   results.forEach((b, i) => {
     const img = b.thumbnail
-      ? `<img src="${escAttr(b.thumbnail)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;lrl-noimg&quot;>No cover</div>'"/>`
+      ? `<img src="${escapeHtml(b.thumbnail)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;lrl-noimg&quot;>No cover</div>'"/>`
       : `<div class="lrl-noimg">No cover</div>`
-    const title = escAttr((b.title || '').slice(0, 90))
-    const author = b.authors.length ? escAttr(b.authors.join(', ')) : ''
+    const title = escapeHtml((b.title || '').slice(0, 90))
+    const author = b.authors.length ? escapeHtml(b.authors.join(', ')) : ''
     const meta = [b.publisher, b.publishedDate].filter(Boolean).join(' · ')
     cards += `
       <li class="lrl-result">
@@ -134,10 +131,10 @@ export const createTable = (results: BookResult[]): string => {
         <div class="lrl-result-body">
           <div class="lrl-result-title">${title}</div>
           ${author ? `<div class="lrl-result-author">${author}</div>` : ''}
-          ${meta ? `<div class="lrl-result-meta">${escAttr(meta)}</div>` : ''}
+          ${meta ? `<div class="lrl-result-meta">${escapeHtml(meta)}</div>` : ''}
           <div class="lrl-result-actions">
             <button class="lrl-add lrl-primary" data-index="${i}">Add to Logseq</button>
-            ${b.infoLink ? `<a href="${escAttr(b.infoLink)}" target="_blank" class="lrl-link">Details ↗</a>` : ''}
+            ${b.infoLink ? `<a href="${escapeHtml(b.infoLink)}" target="_blank" class="lrl-link">Details ↗</a>` : ''}
           </div>
         </div>
       </li>`
@@ -190,14 +187,22 @@ export const attachResultHandlers = (
   }
 }
 
-/** Themed in-modal confirm — replaces SweetAlert2. */
+/**
+ * Themed in-modal confirm — replaces SweetAlert2.
+ *
+ * `message` is plain text that may contain third-party book titles (from
+ * Open Library / Google Books, both attacker-influenceable). It is escaped
+ * at this `innerHTML` sink so an embedded `<img onerror=…>` renders inert
+ * rather than executing in the plugin iframe. Escaping here (not at the
+ * call site) keeps every future caller safe by default.
+ */
 function inlineConfirm(message: string): Promise<boolean> {
   return new Promise((resolve) => {
     const box = document.getElementById('lrlConfirm')
     if (!box) return resolve(true)
     box.innerHTML = `
       <div class="lrl-confirm-card">
-        <p>${message}</p>
+        <p>${escapeHtml(message)}</p>
         <div class="lrl-confirm-actions">
           <button class="lrl-ghost" data-act="cancel">Cancel</button>
           <button class="lrl-primary" data-act="ok">Create page</button>

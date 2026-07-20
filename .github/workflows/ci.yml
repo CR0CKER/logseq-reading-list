@@ -5,6 +5,10 @@ on:
     branches: [master, main]
   pull_request:
 
+# Least privilege: every job only reads the repo unless it needs more.
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,3 +27,55 @@ jobs:
           path: dist/
           if-no-files-found: error
           retention-days: 14
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # tsconfig.json is strict:true — this fails on any type error, which
+      # Parcel's build does NOT (it transpiles without type-checking).
+      - run: npm run typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so gitleaks scans every commit
+      # Third-party action pinned by commit SHA (supply-chain integrity),
+      # not a mutable tag. SHA is gitleaks-action v3.0.0. Free for public /
+      # personal repos (no GITLEAKS_LICENSE needed).
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
+
+  audit:
+    runs-on: ubuntu-latest
+    # ADVISORY, not yet enforced. `npm audit` currently reports known
+    # advisories in @logseq/libs@0.0.17 (transitive dompurify / lodash-es)
+    # — audit finding H2, deferred to a separate SDK-bump PR. Once that
+    # lands and this is green, remove `continue-on-error` to make the audit
+    # a hard gate that blocks any newly-introduced vulnerable dependency.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm audit --omit=dev

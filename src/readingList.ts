@@ -2,6 +2,7 @@ import '@logseq/libs'
 import { PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 import { readingListPageName } from './lib'
 import { READING_STATUSES } from './render'
+import { escapeHtml as esc } from './html'
 
 const MACRO = ':reading-list'
 const STATUS_LABEL: Record<string, string> = {
@@ -65,14 +66,6 @@ let sortMenuRight = 0
 /** Sort preference persists across reloads (stored in plugin settings). */
 function getSort(): 'added' | 'alpha' {
   return logseq.settings?.lastSort === 'alpha' ? 'alpha' : 'added'
-}
-
-function esc(s: string): string {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
 }
 
 /** Get the src out of a `cover` property — either a bare path/URL or a

@@ -21,7 +21,7 @@ export const createPagesByISBN = async (raw: string): Promise<void> => {
     const outcome = await searchBooks('isbn', code)
     if (!outcome.ok) {
       if (outcome.status === 429) {
-        logseq.UI.showMsg(outcome.error, 'error')
+        logseq.UI.showMsg(outcome.error || 'Rate limited by the book service.', 'error')
         break
       }
       notFoundPages.push(code)
