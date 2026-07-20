@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-20
+
 ### Security
 
 - Fix a DOM-XSS in the "create book page" confirm dialog: a book title from
