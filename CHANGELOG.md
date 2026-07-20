@@ -22,6 +22,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `.github/dependabot.yml` — weekly grouped dependency updates for the `npm`
+  and `github-actions` ecosystems, and SHA-pinned the third-party
+  `softprops/action-gh-release` release action (was a mutable `@v2` tag) to
+  `v2.6.2`. (audit finding **L3**)
 - `src/html.ts` — a single, complete `escapeHtml()` (escapes `& < > " '`)
   shared by the search modal and the grid renderer, replacing two divergent
   local escapers (one of which omitted `>`). (audit finding **L4**)

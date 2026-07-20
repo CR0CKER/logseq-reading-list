@@ -1,0 +1,23 @@
+version: 2
+updates:
+  # npm dependencies (the plugin's runtime + build/test toolchain).
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      npm:
+        patterns: ["*"]
+
+  # GitHub Actions used by the CI and release workflows. Keeps the
+  # SHA-pinned third-party action (softprops/action-gh-release,
+  # gitleaks/gitleaks-action) and the first-party actions current.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns: ["*"]
