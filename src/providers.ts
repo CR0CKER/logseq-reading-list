@@ -1,5 +1,6 @@
 import '@logseq/libs'
 import { extractIsbn, normalisePublished } from './render'
+import { fetchWithTimeout, isAbortError } from './net'
 
 /** Normalised book record both providers map onto. */
 export interface BookResult {
@@ -49,7 +50,9 @@ export async function searchBooks(mode: SearchMode, query: string): Promise<Sear
     return {
       ok: false,
       results: [],
-      error: 'Could not reach the book service (network/CORS). Check your connection.',
+      error: isAbortError(e)
+        ? 'The book service took too long to respond (timed out). Check your connection and try again.'
+        : 'Could not reach the book service (network/CORS). Check your connection.',
     }
   }
 }
@@ -66,7 +69,7 @@ function googleUrl(mode: SearchMode, value: string): string {
 }
 
 async function searchGoogle(mode: SearchMode, q: string): Promise<SearchOutcome> {
-  const res = await fetch(googleUrl(mode, q))
+  const res = await fetchWithTimeout(googleUrl(mode, q))
   if (!res.ok) {
     return {
       ok: false,
@@ -121,7 +124,7 @@ function pickIsbn(isbns: any): string {
 }
 
 async function searchOpenLibrary(mode: SearchMode, q: string): Promise<SearchOutcome> {
-  const res = await fetch(openLibraryUrl(mode, q))
+  const res = await fetchWithTimeout(openLibraryUrl(mode, q))
   if (!res.ok) {
     return {
       ok: false,
@@ -164,7 +167,7 @@ export async function fetchDescription(book: BookResult): Promise<string> {
   if (book.description) return book.description
   if (book.source !== 'openlibrary' || !book.workKey) return ''
   try {
-    const res = await fetch(`https://openlibrary.org${book.workKey}.json`)
+    const res = await fetchWithTimeout(`https://openlibrary.org${book.workKey}.json`)
     if (!res.ok) return ''
     const data = await res.json()
     const d = data.description
