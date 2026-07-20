@@ -263,7 +263,7 @@ npm test           # vitest unit tests
 ```
 
 CI (`.github/workflows/ci.yml`) runs `build`, `typecheck`, `test`, a
-gitleaks secret scan, and an advisory `npm audit` on every push and PR.
+gitleaks secret scan, and `npm audit` (shipped deps) on every push and PR.
 
 In Logseq: **Settings → Advanced → Developer mode** (toggle on),
 then **Plugins → Load unpacked plugin** → select the cloned folder.
