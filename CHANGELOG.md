@@ -6,6 +6,28 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Bumped `vitest` `^4.1.10` → `^5.0.0` (dev-only, breaking major; #14). The
+  suite runs unchanged on Node 22, which CI and the release workflow already
+  use; all 54 tests pass.
+- Bumped `softprops/action-gh-release` `v3.0.2` → `v3.0.3` in the release
+  workflow, still SHA-pinned (#15).
+
+### Security
+
+- Refreshed the `browserslist` family in the lockfile (`browserslist` 4.28.9,
+  `baseline-browser-mapping` 2.11.21, `caniuse-lite`, `electron-to-chromium`,
+  `node-releases`, `update-browserslist-db`), clearing
+  [GHSA-w5vr-8v7q-w6rv](https://github.com/advisories/GHSA-w5vr-8v7q-w6rv)
+  (moderate, `baseline-browser-mapping`) and
+  [GHSA-c83g-rgw3-j3cx](https://github.com/advisories/GHSA-c83g-rgw3-j3cx) /
+  [GHSA-73wf-gq98-2v4g](https://github.com/advisories/GHSA-73wf-gq98-2v4g)
+  (high, `browserslist`). Dev-only (Parcel build toolchain).
+  Together with the `vitest` 5 bump this resolves the 0.5.0 *Known issues*
+  note: full `npm audit`, including dev dependencies, reports
+  **0 vulnerabilities**.
+
 ## [0.5.0] - 2026-09-10
 
 ### Added
