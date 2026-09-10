@@ -3,6 +3,7 @@ import { PageEntity } from '@logseq/libs/dist/LSPlugin.user'
 import { readingListPageName } from './lib'
 import { READING_STATUSES } from './render'
 import { escapeHtml as esc } from './html'
+import { FAVORITE_FILTER, resolveInitialFilter } from './filters'
 
 const MACRO = ':reading-list'
 const STATUS_LABEL: Record<string, string> = {
@@ -10,10 +11,6 @@ const STATUS_LABEL: Record<string, string> = {
   reading: 'Reading',
   read: 'Read',
 }
-
-/** Filter chip sentinel for the favorites-only view. Kept distinct from
- *  READING_STATUSES so `currentFilter` stays a single string. */
-const FAVORITE_FILTER = 'favorite'
 
 interface BookRow {
   pageName: string
@@ -274,7 +271,6 @@ function gridHtml(books: BookRow[]): string {
         <button class="lrl-chip" style="${CHIP_INLINE_STYLE}" data-on-click="rlToggleSortMenu" title="Change sort order">${sortLabel}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
         ${menu}
       </div>
-      <button class="lrl-chip" style="${CHIP_INLINE_STYLE}" data-on-click="rlRefresh" title="Refresh">↻</button>
     </div>
     ${body}
   </div>`
@@ -299,8 +295,11 @@ span:has(> .lsp-hook-ui-slot .lrl-readinglist),
 .lsp-hook-ui-slot:has(.lrl-readinglist),
 .lsp-hook-ui-slot:has(.lrl-readinglist) > [data-injected-ui] { display: block !important; width: 100% !important; max-width: none !important; }
 
-.lrl-readinglist{font-size:14px;width:calc(100% + 4rem);margin-right:-4rem;padding-left:1.5rem;box-sizing:border-box;}
-.lrl-bar{display:flex;align-items:center;gap:8px;margin:4px 0 14px;}
+/* white-space:normal — the grid inherits Logseq's block-content
+ * white-space:pre-wrap, which renders the template's newlines and
+ * indentation as blank text lines (two 21px lines above the filter bar). */
+.lrl-readinglist{font-size:14px;white-space:normal;width:calc(100% + 4rem);margin-right:-4rem;padding-left:1.5rem;box-sizing:border-box;}
+.lrl-bar{display:flex;align-items:center;gap:8px;margin:0 0 14px;}
 .lrl-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1 1 auto;min-width:0;}
 /* The grid is rendered into Logseq's *main DOM* (via provideUI), where
  * I can't assume any --ls-* variable is defined: theme.ts only injects
@@ -395,14 +394,9 @@ export function registerReadingListMacro(): void {
   logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
     const args = payload?.arguments ?? []
     if (!args[0] || String(args[0]).trim() !== MACRO) return
-    const arg = (args[1] || '').toString().trim().toLowerCase()
-    if (
-      (READING_STATUSES as readonly string[]).includes(arg) ||
-      arg === 'all' ||
-      arg === FAVORITE_FILTER
-    ) {
-      currentFilter = arg
-    }
+    // Every mount (i.e. every time the page is opened) starts from the
+    // configured default; chip clicks only change the view in place.
+    currentFilter = resolveInitialFilter(args[1], logseq.settings?.defaultFilter)
     await renderInto(slot)
   })
 }

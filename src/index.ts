@@ -64,6 +64,15 @@ const SETTINGS: SettingSchemaDesc[] = [
     default: 'to-read',
   },
   {
+    key: 'defaultFilter',
+    title: 'Default Reading List filter',
+    description: 'Filter selected each time the Reading List page opens.',
+    type: 'enum',
+    enumChoices: ['All', 'To Read', 'Reading', 'Read', 'Favorites'],
+    enumPicker: 'select',
+    default: 'All',
+  },
+  {
     key: 'pageNamePrefix',
     title: 'Book page name prefix',
     description:

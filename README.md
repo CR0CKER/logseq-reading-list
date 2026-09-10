@@ -1,7 +1,7 @@
 # Logseq Reading List
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/CR0CKER/logseq-reading-list/master/docs/grid-overview.png" alt="Reading List cover grid in Logseq — chips for All / To Read / Reading / Read / ★ Favorites, each carrying its status icon; gold stars pin favorited books to the top; sort dropdown and refresh button on the right" width="820">
+  <img src="https://raw.githubusercontent.com/CR0CKER/logseq-reading-list/master/docs/grid-overview.png" alt="Reading List cover grid in Logseq — chips for All / To Read / Reading / Read / ★ Favorites, each carrying its status icon; gold stars pin favorited books to the top; sort dropdown on the right" width="820">
 </p>
 
 
@@ -21,7 +21,7 @@ Paste a stack of ISBNs to **bulk-import** a whole shelf at once. The core
 value is getting accurate book metadata into Logseq fast, without typing
 it by hand — and *then*, on top of that, you get an optional visual
 **reading list**: a responsive cover grid with status filters and a
-**Favorites** chip, a sort dropdown, one-click status and favorite
+**Favorites** chip (opening on the filter of your choice), a sort dropdown, one-click status and favorite
 badges on each cover, and favorited books pinned to the top of every
 view (plus a plugin-free table that also works on mobile).
 
@@ -161,6 +161,9 @@ That macro is rendered by the plugin as:
   exactly. Cards link straight to the book page.
 - **Status filter chips** (All / To Read / Reading / Read / ★ Favorites),
   each chip carrying the same icon as the per-status hover badge it filters on.
+  The chip selected when the page opens is set by the **Default Reading List
+  filter** setting (`defaultFilter`); a filter argument on the macro, e.g.
+  `{{renderer :reading-list, reading}}`, overrides it for that block.
 - **Sort dropdown** (Recently added / A → Z); choice persists across
   reloads.
 - **Cycling status badge** — hover a cover and a round badge appears in
@@ -176,7 +179,11 @@ That macro is rendered by the plugin as:
   narrows the grid to just favorites. The `favorite:: true` property is
   also the contract honoured by `sync-koreader-highlights`, which can
   populate it from KOReader's built-in Favorites collection.
-- **Refresh** button to re-run the query after a manual edit.
+- **Always current on open** — the query re-runs every time the page
+  opens (adding a book takes you to its new page, so coming back shows
+  it). If the grid stays on screen while books change elsewhere — e.g.
+  it's open in the right sidebar while you edit a book in the main pane —
+  run *Reading List: refresh grid* from the command palette.
 
 The bullet of the renderer block is hidden via scoped CSS, and the
 grid breaks out of Logseq's prose-width clamp so it uses the full
@@ -289,7 +296,8 @@ then **Plugins → Load unpacked plugin** → select the cloned folder.
 | Add a book | Toolbar 📖+ button, or *Reading List: add a book…* |
 | Open the grid | *Reading List: open index page* |
 | Add the mobile-friendly table | *Reading List: add mobile-friendly table* |
-| Re-run the grid query | *Reading List: refresh grid* |
+| Re-run the grid query (only needed if it stays on screen while books change elsewhere) | *Reading List: refresh grid* |
+| Choose the filter the grid opens on | Settings → **Default Reading List filter** |
 | Reset templates | *Reading List: reset templates to defaults* |
 | Switch data source | Settings → **Book data source** |
 | Add Google API key | Settings → **Google Books API key** |
@@ -360,6 +368,7 @@ just reads whatever's there.
 | `country` | `US` | Two-letter Google Books country code (required by their API). Ignored for Open Library. |
 | `saveImage` | `true` | Download covers into the graph; if off, the remote URL is used as the property value. |
 | `defaultStatus` | `to-read` | `status::` value applied to new books (`to-read` / `reading` / `read`). |
+| `defaultFilter` | `All` | Filter chip selected when the Reading List opens (`All` / `To Read` / `Reading` / `Read` / `Favorites`). A filter argument on the renderer macro takes precedence. |
 | `pageNamePrefix` | *(empty)* | Optional namespace prefix for book pages (e.g. `Books/`). |
 | `readingListPageName` | `Reading List` | Name of the page that hosts the cover grid. |
 | `bookPageTemplate` | *(Mustache)* | Property block template. |
@@ -409,6 +418,9 @@ omits it — the grid query depends on it.
   render there. Book pages work fine, and the optional
   [mobile-friendly table](#4-optional-a-mobile-friendly-table) gives you
   a plugin-free list that does show on mobile.
+- **The grid doesn't live-update while it stays on screen.** It re-runs
+  its query whenever the page opens; changes made in another pane while
+  it's visible need *Reading List: refresh grid*.
 - **Database graphs untested.** The plugin assumes file-based graphs.
 - **Open Library subject quality varies** — some books return a long,
   noisy mix of LoC headings and user-contributed labels. The
