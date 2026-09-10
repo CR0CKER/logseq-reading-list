@@ -6,14 +6,52 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-10
+
+### Added
+
+- **Default Reading List filter** setting (`defaultFilter`: All / To Read /
+  Reading / Read / Favorites) — the chip selected each time the Reading List
+  page opens. A filter argument on the renderer macro still takes precedence.
+
 ### Changed
 
+- The grid's filter now resets to the configured default each time the page
+  opens, instead of keeping the last-clicked chip until Logseq reloads.
+- The filter chips now sit directly under the page title, where the first
+  bullet sits on a normal page. The grid inherited Logseq's block-content
+  `white-space: pre-wrap`, which rendered the template's line breaks and
+  indentation as two blank text lines (~42px) above the chips; the grid now
+  sets `white-space: normal`.
 - Bumped `vitest` `^2.1.9` → `^4.1.10` (dev-only, breaking major). Clears the
   last remaining `npm audit` advisories — they were in the `vitest`/`vite`
   test toolchain (never shipped in the plugin). Full `npm audit`, including dev
-  dependencies, now reports **0 vulnerabilities**. All 44 tests pass unchanged
+  dependencies, reported **0 vulnerabilities** at the time (see *Known issues*
+  below for advisories published since). All 44 tests pass unchanged
   on the new major (the suite exercises the `vitest` API, so it doubles as the
   upgrade contract test). Resolves the v0.4.0 *Known issues* note.
+
+### Removed
+
+- The ↻ refresh button on the grid. The query already re-runs every time the
+  page opens (adding a book navigates to the new page, so returning shows it);
+  *Reading List: refresh grid* in the command palette remains for the
+  grid-open-in-another-pane case.
+
+### Security
+
+- Bump the `dompurify` override (transitive via `@logseq/libs`) `3.4.12` →
+  `3.4.14`, fixing [GHSA-55q2-fjhq-7xh7](https://github.com/advisories/GHSA-55q2-fjhq-7xh7)
+  (moderate; XSS via `IN_PLACE` hook removal, published 2026-08-07, patched in
+  `3.4.13`). `3.4.14` chosen over the 4-day-old `3.4.15` as a release-age
+  cooldown. `npm audit --omit=dev` reports **0 vulnerabilities** again.
+
+### Known issues
+
+- Dev-only advisories published since 0.4.0 remain in the Parcel/Vitest
+  toolchain (`nanoid`, `postcss`, `browserslist`, `baseline-browser-mapping`,
+  `vitest`). None of these packages ship in the plugin, and the CI audit gate
+  (`--omit=dev`) is green. Non-breaking fixes exist; tracked for a follow-up.
 
 ## [0.4.0] - 2026-07-20
 
